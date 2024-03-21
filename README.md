@@ -30,3 +30,4 @@ To ensure the reliability and functionality of the application, we will implemen
 5. Run the application: python app.py
 
 ## Contact
+For any inquiries or feedback, please contact 
