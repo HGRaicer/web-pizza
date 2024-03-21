@@ -16,6 +16,11 @@ This project is a collaborative effort by four students from Moscow Aviation Ins
 - *HTML/CSS/JavaScript*: Frontend development for the user interface.
 - *Third-Party Libraries*: 
 - *Deployment*:
+
+## Testing Strategy
+To ensure the reliability and functionality of the application, we will implement a comprehensive testing strategy, including:
+
+- *Unit Testing*: We will write extensive unit tests to validate the functionality of individual components and ensure they perform as expected. These tests will cover various scenarios and edge cases to catch any potential bugs early in the development process
   
 ## Setup Instructions
 1. Clone the repository: git clone https://github.com/HGRaicer/web-pizza.git
@@ -23,13 +28,5 @@ This project is a collaborative effort by four students from Moscow Aviation Ins
 3. Set up the PostgreSQL database: 
 4. Configure environment variables: 
 5. Run the application: python app.py
-
-## Contribution Guidelines
-Contributions to this project are welcome. If you would like to contribute, please follow these steps:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix: git checkout -b feature-name
-3. Make your changes and commit them: git commit -m 'Add some feature'
-4. Push to the branch: git push origin feature-name
-5. Submit a pull request.
 
 ## Contact
