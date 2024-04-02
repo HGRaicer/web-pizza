@@ -1,43 +1,24 @@
 from app import app, models
-from flask import request, Response
+from flask import request, Response, render_template, flash, redirect, url_for
 import json
 from http import HTTPStatus
+from app.forms import RegistrationForm, LoginForm
 
 
-@app.post('/client/registration')
-def clinet_registration():
-    data = json.loads(request.data)
-    if (not models.User.valid_phone(data['phone'])) or (not models.User.valid_password(data['password'])):
-        return Response(status=HTTPStatus.BAD_REQUEST)
+@app.route('/registration', methods=['GET', 'POST'])
+def registration():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.name.data, form.remember_me.data))
+        return redirect(url_for('login'))
+    return render_template('registration.html',  title='Sign In', form=form)
 
-    user = models.Client(name=data['name'], phone=data['phone'], password=data['password'])
-    user.save()
-    return Response(status=HTTPStatus.CREATED) #сделать переход на страницу с меню
-
-
-@app.post('/admin/registration')
-def admin_registration():
-    data = json.loads(request.data)
-    if not models.User.valid_phone(data['phone']) or not models.User.valid_password(data['password']):
-        return Response(status=HTTPStatus.BAD_REQUEST)
-
-    user = models.Admin(name=data['name'], phone=data['phone'], password=data['password'])
-    user.save()
-    return Response(status=HTTPStatus.CREATED) #сделать переход на главную страницу
-
-@app.post('/client/login')
-def client_login():
-    data = json.loads(request.data)
-    if not models.Client.check_client(data['phone'], data['password']):
-        return Response(status=HTTPStatus.BAD_REQUEST)
-
-    return Response(status=HTTPStatus.OK) #сделать переход на страницу с меню
-
-
-@app.post('/admin/login')
-def admin_login():
-    data = json.loads(request.data)
-    if not models.Admin.check_admin(data['phone'], data['password']):
-        return Response(status=HTTPStatus.BAD_REQUEST)
-
-    return Response(status=HTTPStatus.OK)  # сделать переход на главную страницу
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.name.data, form.remember_me.data))
+        return redirect(url_for('login'))
+    return render_template('login.html',  title='Sign In', form=form)
