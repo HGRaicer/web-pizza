@@ -1,32 +1,44 @@
-import re
+from typing import Optional
+import sqlalchemy as sa
+import sqlalchemy.orm as so
+from app import db
 
 
-class User:
-    def __init__(self, name: str, phone: str, password: str):
-        self.name = name
-        self.phone = phone
-        self.password = hash(password)
+class User(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key = True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(100))
+    email: so.Mapped[str] = so.mapped_column(sa.String(100), unique = True)
+    phone: so.Mapped[str] = so.mapped_column(sa.String(15), unique = True)
+    password: so.Mapped[str] = so.mapped_column(sa.String(30))
+    last5_order: so.Mapped[str] = so.mapped_column(sa.String(100))
+
+    posts: so.WriteOnlyMapped['Order'] = so.relationship(back_populates='author')
 
 
-class Client(User):
-    def __init__(self, name: str, phone: str, password: str):
-        super().__init__(name, phone, password)
-
-    def save(self):
-        pass
-
-    @staticmethod
-    def check_client(phone: str, password: str):
-        pass
+class Admin(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key = True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(100))
+    password: so.Mapped[str] = so.mapped_column(sa.String(30))
+    position: so.Mapped[str] = so.mapped_column(sa.String(50))
+    email: so.Mapped[str] = so.mapped_column(sa.String(100), unique=True)
 
 
-class Admin(User):
-    def __init__(self, name: str, phone: str, password: str):
-        super().__init__(name, phone, password)
+class Products(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(100))
+    price: so.Mapped[int] = so.mapped_column()
+    ingridients: so.Mapped[str] = so.mapped_column(sa.String(150))
+    size: so.Mapped[str] = so.mapped_column(sa.String(50))
+    mass: so.Mapped[str] = so.mapped_column(sa.String(100))
 
-    def save(self):
-        pass
 
-    @staticmethod
-    def check_admin(phone: str, password: str):
-        pass
+class Order(db.Model):
+    id_order: so.Mapped[int] = so.mapped_column(primary_key=True)
+    time: so.Mapped[str] = so.mapped_column(sa.String(100))
+    check: so.Mapped[str] = so.mapped_column(sa.String(100))
+    status: so.Mapped[str] = so.mapped_column(sa.String(100))
+    id_person: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
+    addres: so.Mapped[str] = so.mapped_column(sa.String(100))
+    comment: so.Mapped[str] = so.mapped_column(sa.String(200))
+
+    author: so.Mapped[User] = so.relationship(back_populates='posts')
