@@ -3,22 +3,49 @@ from flask import request, Response, render_template, flash, redirect, url_for
 import json
 from http import HTTPStatus
 from app.forms import RegistrationForm, LoginForm
+from flask_login import logout_user, current_user, login_user
 
 
-@app.route('/registration', methods=['GET', 'POST'])
+@app.route("/registration", methods=["GET", "POST"])
 def registration():
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
     form = RegistrationForm()
     if form.validate_on_submit():
-        flash('Login requested for user {}, remember_me={}'.format(
-            form.name.data, form.remember_me.data))
-        return redirect(url_for('login'))
-    return render_template('registration.html',  title='Sign In', form=form)
+        if form.validate_on_submit():
+            user = models.User(
+                name=form.name.data, email=form.email.data, phone=form.phone.data
+            )
+            user.hash_password(form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            flash("Congratulations, you are now a registered user!")
+            return redirect(url_for("login"))
+    return render_template("registration.html", title="Sign In", form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
-        flash('Login requested for user {}, remember_me={}'.format(
-            form.name.data, form.remember_me.data))
-        return redirect(url_for('login'))
-    return render_template('login.html',  title='Sign In', form=form)
+        user = db.session.scalar(
+            sa.select(models.User).where(models.User.email == form.email.data))
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('login'))
+        login_user(user, remember=form.remember_me.data)
+        return redirect(url_for('index'))
+        return redirect(url_for("login"))
+    return render_template("login.html", title="Sign In", form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/')
+def menu():
+    return render_template('menu.html')
