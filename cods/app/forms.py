@@ -2,6 +2,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, ValidationError
 import re
+import sqlalchemy as sa
+from app import db
+from app.models import User
 
 
 class Form(FlaskForm):
@@ -34,7 +37,7 @@ class RegistrationForm(Form):
             r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
         ):
             raise ValidationError("Unvailde email")
-        user = db.session.scalar(sa.select(User).where(User.email == email.data))
+        user = db.session.scalar(sa.select(User).where(User.email == field.data))
         if user is not None:
             raise ValidationError("Please use a different email address.")
 

@@ -11,6 +11,7 @@
         <div>
             Web-Pizza:
             <a href="{{ url_for('menu') }}">Menu</a>
+            <a href="{{ url_for('cart') }}">Корзина</a>
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('registration') }}">Registration</a>
             <a href="{{ url_for('login') }}">Login</a>

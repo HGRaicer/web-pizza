@@ -12,7 +12,7 @@ class User(UserMixin, db.Model):
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     email: so.Mapped[str] = so.mapped_column(sa.String(100), unique=True)
     phone: so.Mapped[str] = so.mapped_column(sa.String(15), unique=True)
-    password: so.Mapped[str] = so.mapped_column(sa.String(150))
+    password: so.Mapped[str] = so.mapped_column(sa.String(300))
     last5_order: so.Mapped[str] = so.mapped_column(sa.String(100))
 
     posts: so.WriteOnlyMapped["Order"] = so.relationship(back_populates="author")
@@ -21,7 +21,7 @@ class User(UserMixin, db.Model):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password, password)
 
 
 class Admin(UserMixin, db.Model):
@@ -35,7 +35,7 @@ class Admin(UserMixin, db.Model):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password, password)
 
 
 class Products(db.Model):
