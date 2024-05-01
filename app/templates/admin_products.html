@@ -1,0 +1,32 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    Admin Products
+{% endblock %}
+
+{% block content %}
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Ingridients</th>
+            <th>Size</th>
+            <th>Mass</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.ingridients }}</td>
+            <td>{{ product.size }}</td>
+            <td>{{ product.mass }}</td>
+            <td>
+                <a href="#">Edit</a>
+                <a href="#">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

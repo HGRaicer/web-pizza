@@ -1,14 +1,15 @@
 # Импортируем необходимые модули и функции
 from app import app, models
-from flask import request, Response, render_template, flash, redirect, url_for, session
+from flask import request, Response, render_template, flash, redirect, url_for, session, abort
 import json
 import sqlalchemy as sa
 from app import db
 from http import HTTPStatus
 from app.forms import RegistrationForm, LoginForm, PayCartForm
-from flask_login import logout_user, current_user, login_user
+from flask_login import logout_user, current_user, login_user, login_required
 from sqlalchemy import func
 from datetime import datetime, date, time
+from functools import wraps
 import ast
 
 # Маршрут для регистрации нового пользователя
@@ -218,3 +219,44 @@ def order_tracking():
     id_order = session.get("order")
     status_order = models.Order.query.get(id_order).status
     return render_template("order_tracking.html", status_order=status_order)
+
+
+#Admin page
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if current_user.role != 'admin':
+            abort(404)
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+@app.route('/admin')
+@login_required
+#@admin_required
+def admin():
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/users')
+@login_required
+#@admin_required
+def admin_users():
+    users = models.User.query.all()
+    return render_template('admin_users.html', users=users)
+
+
+@app.route('/admin/products')
+@login_required
+#@admin_required
+def admin_products():
+    products = models.Products.query.all()
+    return render_template('admin_products.html', products=products)
+
+
+@app.route('/admin/orders')
+@login_required
+#@admin_required
+def admin_orders():
+    orders = models.Order.query.all()
+    return render_template('admin_orders.html', orders=orders)
