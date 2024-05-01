@@ -1,8 +1,9 @@
 # Импортируем необходимые модули и функции
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField
+from wtforms.validators import DataRequired, ValidationError, Optional
 import re
+from datetime import datetime, timedelta
 import sqlalchemy as sa
 from app import db
 from app.models import User
@@ -53,9 +54,17 @@ class LoginForm(Form):
 
 
 class PayCartForm(FlaskForm):
-    number_card = StringField("number_card",validators=[DataRequired()])
-    cvc = StringField("cvc",validators=[DataRequired()])
-    date = StringField("date",validators=[DataRequired()])
-    address = TextAreaField("address",validators=[DataRequired()])
-    comment = TextAreaField("comment",validators=[DataRequired()])
+    number_card = StringField("Номер карты",validators=[DataRequired()])
+    cvc = StringField("Код",validators=[DataRequired()])
+    date = StringField("Срок",validators=[DataRequired()])
+    address = TextAreaField("Адрес доставки",validators=[DataRequired()])
+    time = TimeField("Время доставки", validators=[DataRequired()])
+    comment = TextAreaField("Комментарий",validators=[Optional()])
     submit = SubmitField("Подтвердить")
+
+    def validate_time(self, field):
+        # Проверяем, соответствует ли время доставки требованиям
+        cut_time = datetime.now()
+        minimum_delivery_time = cut_time + timedelta(minutes=30)
+        if field.data < minimum_delivery_time.time():
+            raise ValidationError("Время доставки должно быть не ранее чем через полчаса.")

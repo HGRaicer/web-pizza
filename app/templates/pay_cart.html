@@ -11,13 +11,6 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.cvc.label }}<br>
-            {{ form.cvc(size=10) }}<br>
-            {% for error in form.cvc.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
             {{ form.date.label }}<br>
             {{ form.date(size=10) }}<br>
             {% for error in form.date.errors %}
@@ -25,9 +18,23 @@
             {% endfor %}
         </p>
         <p>
+            {{ form.cvc.label }}<br>
+            {{ form.cvc(size=10) }}<br>
+            {% for error in form.cvc.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.address.label }}<br>
             {{ form.address(size=50) }}<br>
             {% for error in form.address.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.time.label }}<br>
+            {{ form.time(size=10) }}<br>
+            {% for error in form.time.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>

@@ -8,7 +8,7 @@ from http import HTTPStatus
 from app.forms import RegistrationForm, LoginForm, PayCartForm
 from flask_login import logout_user, current_user, login_user
 from sqlalchemy import func
-import time
+from datetime import datetime, date, time
 import ast
 
 # Маршрут для регистрации нового пользователя
@@ -105,6 +105,11 @@ def add_to_cart():
 # Маршрут для просмотра корзины
 @app.route("/cart")
 def cart():
+    is_empty = True
+    # Проверяем, есть ли в сессии корзина
+    if "cart" not in session:
+        is_empty = False
+        return render_template("cart.html", is_empty=is_empty)
     # Получаем словарь идентификаторов товаров и их количеств в корзине
     cart_items = session.get("cart", {})
     # Получаем товары из базы данных по идентификаторам в корзине
@@ -183,10 +188,12 @@ def pay_cart():
                 total_cost += models.Products.query.get(id_product).price * quantity
             # формируем чек
             check = f"{total_cost}|" + products
-            # подгружаем время в которое сделан заказ
-            named_tuple = time.localtime()  # получить struct_time
-            # преобразует в понятный вид для чтения - день/месяц/год, час:минута:секунда
-            time_string = time.strftime("%d/%m/%Y, %H:%M:%S", named_tuple)
+            # Получение текущего времени заказа
+            time = form.time.data
+            today = date.today()
+            date_with_time = datetime.combine(today, time)
+            formatted_date = date_with_time.strftime("%d/%m/%Y %H:%M")
+
             # Сохраняем информацию о заказе
             order = models.Order(
                 id_person=current_user.id,
@@ -194,13 +201,20 @@ def pay_cart():
                 status="Принято",
                 comment=form.comment.data,
                 check=check,
-                time=time_string
+                time=formatted_date
             )
             # Очищаем корзину
-            session.clear()
+            session["cart"].clear()
             db.session.add(order)
             db.session.commit()
-            return redirect(url_for("menu"))
+            session["order"] = order.id_order
+            return redirect(url_for("order_tracking"))
         return render_template("pay_cart.html", title="Pay_cart", form=form)
     else:
         return redirect(url_for("login"))
+
+@app.route("/order_tracking", methods=["GET"])
+def order_tracking():
+    id_order = session.get("order")
+    status_order = models.Order.query.get(id_order).status
+    return render_template("order_tracking.html", status_order=status_order)
