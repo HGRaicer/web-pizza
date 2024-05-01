@@ -5,7 +5,7 @@ import json
 import sqlalchemy as sa
 from app import db
 from http import HTTPStatus
-from app.forms import RegistrationForm, LoginForm, PayCartForm
+from app.forms import RegistrationForm, LoginForm, PayCartForm, AddProductForm
 from flask_login import logout_user, current_user, login_user, login_required
 from sqlalchemy import func
 from datetime import datetime, date, time
@@ -273,6 +273,24 @@ def admin_orders():
     return render_template('admin_orders.html', orders=orders)
 
 
+@app.route('/admin/products/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_product():
+    form = AddProductForm()
+    if form.validate_on_submit():
+        new_product = models.Products(name=form.name.data, price=form.price.data,\
+                                      ingridients=form.ingridients.data, size=form.size.data,\
+                                          mass=form.mass.data)
+
+        db.session.add(new_product)
+        db.session.commit()
+
+        return redirect(url_for('admin_products'))
+
+    return render_template('add_product.html', form=form)
+
+
 @app.route('/admin/orders/update_status/<int:order_id>/<new_status>', methods=['GET'])
 @login_required
 @admin_required
@@ -310,7 +328,7 @@ def delete_order(order_id):
 @login_required
 @admin_required
 def delete_product(product_id):
-    product = models.Product.query.get_or_404(product_id)
+    product = models.Products.query.get_or_404(product_id)
     db.session.delete(product)
     db.session.commit()
 
