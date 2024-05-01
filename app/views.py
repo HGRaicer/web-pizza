@@ -5,7 +5,7 @@ import json
 import sqlalchemy as sa
 from app import db
 from http import HTTPStatus
-from app.forms import RegistrationForm, LoginForm, PayCartForm, AddProductForm
+from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
 from flask_login import logout_user, current_user, login_user, login_required
 from sqlalchemy import func
 from datetime import datetime, date, time
@@ -277,7 +277,7 @@ def admin_orders():
 @login_required
 @admin_required
 def add_product():
-    form = AddProductForm()
+    form = ProductForm()
     if form.validate_on_submit():
         new_product = models.Products(name=form.name.data, price=form.price.data,\
                                       ingridients=form.ingridients.data, size=form.size.data,\
@@ -285,11 +285,22 @@ def add_product():
 
         db.session.add(new_product)
         db.session.commit()
-
         return redirect(url_for('admin_products'))
-
     return render_template('add_product.html', form=form)
 
+
+@app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_product(product_id):
+    product = models.Products.query.get_or_404(product_id)
+    form = ProductForm(obj=product)
+    if form.validate_on_submit():
+        form.populate_obj(product)
+        db.session.commit()
+        return redirect(url_for('admin_products'))
+    return render_template('edit_product.html', form=form, product_id=product_id)
+                           
 
 @app.route('/admin/orders/update_status/<int:order_id>/<new_status>', methods=['GET'])
 @login_required

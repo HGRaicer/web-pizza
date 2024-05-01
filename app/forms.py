@@ -70,9 +70,10 @@ class PayCartForm(FlaskForm):
             raise ValidationError("Время доставки должно быть не ранее чем через полчаса.")
 
 
-class AddProductForm(FlaskForm):
+class ProductForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     price = DecimalField('Price', validators=[DataRequired()])
     ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
+

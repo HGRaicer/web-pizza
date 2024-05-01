@@ -27,7 +27,7 @@
             <td>{{ product.size }}</td>
             <td>{{ product.mass }}</td>
             <td>
-                <a href="#">Edit</a>
+                <a href="#" onclick="editProduct({{ product.id }})">Edit</a>
                 <a href="#" onclick="deleteProduct({{ product.id }})">Delete</a>
             </td>
         </tr>
@@ -35,6 +35,20 @@
     </table>
 
     <script>
+        function editProduct(productId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/products/edit/' + productId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = url;
+            } else {
+                console.error('Failed to delete product');
+            }
+        };
+        xhr.send();
+    }
+
         function deleteProduct(productId) {
         var xhr = new XMLHttpRequest();
         var url = '/admin/products/delete/' + productId;
