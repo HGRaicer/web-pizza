@@ -1,6 +1,6 @@
 # Импортируем необходимые модули и функции
 from app import app, models
-from flask import request, Response, render_template, flash, redirect, url_for, session
+from flask import request, Response, render_template, flash, redirect, url_for, session,jsonify
 import json
 import sqlalchemy as sa
 from app import db
@@ -218,3 +218,10 @@ def order_tracking():
     id_order = session.get("order")
     status_order = models.Order.query.get(id_order).status
     return render_template("order_tracking.html", status_order=status_order)
+
+@app.route("/get_order_status", methods=["GET"])
+def get_order_status():
+    id_order = session.get("order")
+    status_order = models.Order.query.get(id_order).status
+    return jsonify({"status": status_order})
+
