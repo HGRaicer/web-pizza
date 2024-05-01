@@ -5,9 +5,11 @@
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('admin_users') }}">Users</a>
-        <a href="{{ url_for('admin_products') }}">Products</a>
-        <a href="{{ url_for('admin_orders') }}">Orders</a>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('admin_users') }}">Users</a>
+            <a href="{{ url_for('admin_products') }}">Products</a>
+            <a href="{{ url_for('admin_orders') }}">Orders</a>
+        </div>
     </nav>
     <div>
         {% block content %}

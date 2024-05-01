@@ -240,15 +240,26 @@ def admin():
 
 @app.route('/admin/users')
 @login_required
-#@admin_required
+@admin_required
 def admin_users():
     users = models.User.query.all()
     return render_template('admin_users.html', users=users)
 
 
+@app.route('/admin/users/change_role/<int:user_id>/<new_role>', methods=['GET'])
+@login_required
+@admin_required
+def change_user_role(user_id, new_role):
+    user = models.User.query.get_or_404(user_id)
+    user.role = new_role
+    db.session.commit()
+
+    return redirect(url_for('admin_users'))
+
+
 @app.route('/admin/products')
 @login_required
-#@admin_required
+@admin_required
 def admin_products():
     products = models.Products.query.all()
     return render_template('admin_products.html', products=products)
@@ -256,7 +267,18 @@ def admin_products():
 
 @app.route('/admin/orders')
 @login_required
-#@admin_required
+@admin_required
 def admin_orders():
     orders = models.Order.query.all()
     return render_template('admin_orders.html', orders=orders)
+
+
+@app.route('/admin/orders/update_status/<int:order_id>/<new_status>', methods=['GET'])
+@login_required
+@admin_required
+def update_order_status(order_id, new_status):
+    order = models.Order.query.get_or_404(order_id)
+    order.status = new_status
+    db.session.commit()
+
+    return redirect(url_for('admin_orders'))
