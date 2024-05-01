@@ -282,3 +282,36 @@ def update_order_status(order_id, new_status):
     db.session.commit()
 
     return redirect(url_for('admin_orders'))
+
+
+@app.route('/admin/users/delete/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = models.User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/orders/delete/<int:order_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_order(order_id):
+    order = models.Order.query.get_or_404(order_id)
+    db.session.delete(order)
+    db.session.commit()
+
+    return redirect(url_for('admin_orders'))
+
+
+@app.route('/admin/products/delete/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_product(product_id):
+    product = models.Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+
+    return redirect(url_for('admin_products'))

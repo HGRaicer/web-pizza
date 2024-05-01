@@ -18,7 +18,7 @@ class User(UserMixin, db.Model):
     password: so.Mapped[str] = so.mapped_column(sa.String(300))
     last5_order: so.Mapped[str] = so.mapped_column(sa.String(100))
 
-    posts: so.WriteOnlyMapped["Order"] = so.relationship(back_populates="author")
+    posts: so.WriteOnlyMapped["Order"] = so.relationship(back_populates="author", passive_deletes=True)
 
     # Метод для хеширования пароля
     def hash_password(self, password):

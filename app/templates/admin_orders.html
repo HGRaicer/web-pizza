@@ -34,7 +34,7 @@
             <td>{{ order.comment }}</td>
             <td>{{ order.author }}</td>
             <td>
-                <a href="#">Delete</a>
+                <a href="#" onclick="deleteOrder({{ order.id_order }})">Delete</a>
             </td>
         </tr>
         {% endfor %}
@@ -49,10 +49,24 @@
                 if (xhr.status === 200) {
                     window.location.href = '/admin/orders';
                 } else {
-                    console.error('Failed to change user role');
+                    console.error('Failed to change order status');
                 }
             };
             xhr.send();
         }
+
+        function deleteOrder(orderId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/orders/delete/' + orderId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = '/admin/orders';
+            } else {
+                console.error('Failed to delete order');
+            }
+        };
+        xhr.send();
+    }
     </script>
 {% endblock %}

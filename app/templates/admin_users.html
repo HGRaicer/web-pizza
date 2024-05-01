@@ -28,7 +28,7 @@
             <td>{{ user.phone }}</td>
             <td>{{ user.last5_order }}</td>
             <td>
-                <a href="#">Delete</a>
+                <a href="#" onclick="deleteUser({{ user.id }})">Delete</a>
             </td>
         </tr>
         {% endfor %}
@@ -48,5 +48,20 @@
             };
             xhr.send();
         }
+
+        function deleteUser(userId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/users/delete/' + userId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // Redirect to the admin page after successful deletion
+                window.location.href = '/admin';
+            } else {
+                console.error('Failed to delete user');
+            }
+        };
+        xhr.send();
+    }
     </script>
 {% endblock %}
