@@ -1,6 +1,6 @@
 # Импортируем необходимые модули и функции
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField, DecimalField
 from wtforms.validators import DataRequired, ValidationError, Optional
 import re
 from datetime import datetime, timedelta
@@ -68,3 +68,12 @@ class PayCartForm(FlaskForm):
         minimum_delivery_time = cut_time + timedelta(minutes=30)
         if field.data < minimum_delivery_time.time():
             raise ValidationError("Время доставки должно быть не ранее чем через полчаса.")
+
+
+class ProductForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    price = DecimalField('Price', validators=[DataRequired()])
+    ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
+    size = StringField("Size", validators=[DataRequired()])
+    mass = StringField("Mass", validators=[DataRequired()])
+

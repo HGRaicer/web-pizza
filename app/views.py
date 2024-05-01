@@ -1,15 +1,12 @@
 # Импортируем необходимые модули и функции
 from app import app, models
-from flask import request, Response, render_template, flash, redirect, url_for, session,jsonify
-import json
+from flask import request, render_template, flash, redirect, url_for, session, abort, jsonify
 import sqlalchemy as sa
 from app import db
-from http import HTTPStatus
-from app.forms import RegistrationForm, LoginForm, PayCartForm
-from flask_login import logout_user, current_user, login_user
-from sqlalchemy import func
-from datetime import datetime, date, time
-import ast
+from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
+from flask_login import logout_user, current_user, login_user, login_required
+from datetime import datetime, date
+from functools import wraps
 
 # Маршрут для регистрации нового пользователя
 @app.route("/registration", methods=["GET", "POST"])
@@ -225,3 +222,129 @@ def get_order_status():
     status_order = models.Order.query.get(id_order).status
     return jsonify({"status": status_order})
 
+
+
+
+#Admin page
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if current_user.role != 'admin':
+            abort(404)
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+@app.route('/admin')
+@login_required
+#@admin_required
+def admin():
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_users():
+    users = models.User.query.all()
+    return render_template('admin_users.html', users=users)
+
+
+@app.route('/admin/users/change_role/<int:user_id>/<new_role>', methods=['GET'])
+@login_required
+@admin_required
+def change_user_role(user_id, new_role):
+    user = models.User.query.get_or_404(user_id)
+    user.role = new_role
+    db.session.commit()
+
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/products')
+@login_required
+@admin_required
+def admin_products():
+    products = models.Products.query.all()
+    return render_template('admin_products.html', products=products)
+
+
+@app.route('/admin/orders')
+@login_required
+@admin_required
+def admin_orders():
+    orders = models.Order.query.all()
+    return render_template('admin_orders.html', orders=orders)
+
+
+@app.route('/admin/products/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_product():
+    form = ProductForm()
+    if form.validate_on_submit():
+        new_product = models.Products(name=form.name.data, price=form.price.data,\
+                                      ingridients=form.ingridients.data, size=form.size.data,\
+                                          mass=form.mass.data)
+
+        db.session.add(new_product)
+        db.session.commit()
+        return redirect(url_for('admin_products'))
+    return render_template('add_product.html', form=form)
+
+
+@app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_product(product_id):
+    product = models.Products.query.get_or_404(product_id)
+    form = ProductForm(obj=product)
+    if form.validate_on_submit():
+        form.populate_obj(product)
+        db.session.commit()
+        return redirect(url_for('admin_products'))
+    return render_template('edit_product.html', form=form, product_id=product_id)
+
+
+@app.route('/admin/orders/update_status/<int:order_id>/<new_status>', methods=['GET'])
+@login_required
+@admin_required
+def update_order_status(order_id, new_status):
+    order = models.Order.query.get_or_404(order_id)
+    order.status = new_status
+    db.session.commit()
+
+    return redirect(url_for('admin_orders'))
+
+
+@app.route('/admin/users/delete/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = models.User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/orders/delete/<int:order_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_order(order_id):
+    order = models.Order.query.get_or_404(order_id)
+    db.session.delete(order)
+    db.session.commit()
+
+    return redirect(url_for('admin_orders'))
+
+
+@app.route('/admin/products/delete/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_product(product_id):
+    product = models.Products.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+
+    return redirect(url_for('admin_products'))
