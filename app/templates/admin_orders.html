@@ -5,16 +5,16 @@
 {% endblock %}
 
 {% block content %}
-    <table border="1">
+    <table border="1" id="ordertable">
         <tr>
-            <th>ID</th>
-            <th>Time</th>
-            <th>Check</th>
-            <th>Status</th>
-            <th>Person ID</th>
-            <th>Address</th>
-            <th>Comment</th>
-            <th>Author</th>
+            <th onclick="sortTable(0)">ID</th>
+            <th onclick="sortTable(1)">Time</th>
+            <th onclick="sortTable(2)">Check</th>
+            <th onclick="sortTable(3)">Status</th>
+            <th onclick="sortTable(4)">Person ID</th>
+            <th onclick="sortTable(5)">Address</th>
+            <th onclick="sortTable(6)">Comment</th>
+            <th onclick="sortTable(7)">Author</th>
         </tr>
         {% for order in orders %}
         <tr>
@@ -68,5 +68,5 @@
         };
         xhr.send();
     }
-    </script>
+</script>
 {% endblock %}

@@ -41,7 +41,7 @@
             xhr.open('GET', url, true);
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    window.location.href = '/admin';
+                    window.location.href = '/admin/users';
                 } else {
                     console.error('Failed to change user role');
                 }
