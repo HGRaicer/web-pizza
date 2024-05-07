@@ -1,0 +1,66 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    Admin Products
+{% endblock %}
+
+{% block content %}
+    <div style="margin-bottom: 20px;">
+        <a href="{{ url_for('add_product') }}">Add Product</a>
+    </div>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Ingridients</th>
+            <th>Size</th>
+            <th>Mass</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.ingridients }}</td>
+            <td>{{ product.size }}</td>
+            <td>{{ product.mass }}</td>
+            <td>
+                <a href="#" onclick="editProduct({{ product.id }})">Edit</a>
+                <a href="#" onclick="deleteProduct({{ product.id }})">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function editProduct(productId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/products/edit/' + productId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = url;
+            } else {
+                console.error('Failed to delete product');
+            }
+        };
+        xhr.send();
+    }
+
+        function deleteProduct(productId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/products/delete/' + productId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = '/admin/products';
+            } else {
+                console.error('Failed to delete product');
+            }
+        };
+        xhr.send();
+    }
+    </script>
+{% endblock %}
