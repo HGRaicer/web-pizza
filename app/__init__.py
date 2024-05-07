@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_marshmallow import Marshmallow
 import os
 
 # Создаем экземпляр Flask приложения
@@ -22,6 +23,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 # Инициализируем LoginManager для работы с аутентификацией пользователей
 login = LoginManager(app)
+login.login_view = 'login'
 
 # Импортируем модели и представления из нашего приложения
 from app import models

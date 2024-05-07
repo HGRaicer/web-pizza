@@ -7,6 +7,8 @@ from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
 from flask_login import logout_user, current_user, login_user, login_required
 from datetime import datetime, date
 from functools import wraps
+from urllib.parse import urlsplit
+
 
 # Маршрут для регистрации нового пользователя
 @app.route("/registration", methods=["GET", "POST"])
@@ -36,6 +38,7 @@ def registration():
     # Возвращаем шаблон страницы регистрации с формой
     return render_template("registration.html", title="Sign In", form=form)
 
+
 # Маршрут для входа в систему
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -57,10 +60,13 @@ def login():
             return redirect(url_for("login"))
         # Авторизуем пользователя
         login_user(user, remember=form.remember_me.data)
-        # Перенаправляем пользователя на главное меню
-        return redirect(url_for("menu"))
+        next_page = request.args.get('next')
+        if not next_page or urlsplit(next_page).netloc != '':
+            next_page = url_for('menu')
+        return redirect(next_page)
     # Возвращаем шаблон страницы входа с формой
     return render_template("login.html", title="Sign In", form=form)
+
 
 # Маршрут для выхода из системы
 @app.route("/logout")
@@ -70,6 +76,7 @@ def logout():
     # Перенаправляем пользователя на главное меню
     return redirect(url_for("menu"))
 
+
 # Маршрут для главного меню
 @app.route("/")
 def menu():
@@ -77,6 +84,7 @@ def menu():
     products = models.Products.query.all()
     # Возвращаем шаблон главного меню с продуктами
     return render_template("menu.html", products=products)
+
 
 # Маршрут для добавления товара в корзину
 @app.route("/add_to_cart", methods=["POST"])
@@ -98,6 +106,7 @@ def add_to_cart():
     session.modified = True
     # Перенаправляем пользователя на главное меню
     return redirect(url_for("menu"))
+
 
 # Маршрут для просмотра корзины
 @app.route("/cart")
@@ -170,6 +179,7 @@ def increase_quantity_cart():
 
 
 # Маршрут для оплаты корзины
+@login_required
 @app.route("/pay_cart", methods=["GET", "POST"])
 def pay_cart():
     if current_user.is_authenticated:
@@ -210,34 +220,40 @@ def pay_cart():
     else:
         return redirect(url_for("login"))
 
+
 @app.route("/order_tracking", methods=["GET"])
 def order_tracking():
     id_order = session.get("order")
+    if models.Order.query.get(id_order) is None:
+        return redirect(url_for("menu"))
     status_order = models.Order.query.get(id_order).status
     return render_template("order_tracking.html", status_order=status_order)
+
 
 @app.route("/get_order_status", methods=["GET"])
 def get_order_status():
     id_order = session.get("order")
+    if models.Order.query.get(id_order) is None:
+        return jsonify({"status": "Заказа не существует"})
     status_order = models.Order.query.get(id_order).status
     return jsonify({"status": status_order})
 
 
-
-
-#Admin page
+# Admin page
 def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('login'),)
         if current_user.role != 'admin':
-            abort(404)
+            return redirect(url_for('menu'))
         return func(*args, **kwargs)
     return decorated_view
 
 
 @app.route('/admin')
 @login_required
-#@admin_required
+@admin_required
 def admin():
     return redirect(url_for('admin_users'))
 

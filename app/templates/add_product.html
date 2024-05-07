@@ -9,35 +9,35 @@
     <form method="POST">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.name.label }}
-            {{ form.name(class="form-control") }}
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control") }}<br>
             {% for error in form.name.errors %}
                 <span>{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.price.label }}
-            {{ form.price(class="form-control") }}
+            {{ form.price.label }}<br>
+            {{ form.price(class="form-control") }}<br>
             {% for error in form.price.errors %}
                 <span>{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.ingridients.label }}
-            {{ form.ingridients(class="form-control") }}
+            {{ form.ingridients.label }}<br>
+            {{ form.ingridients(class="form-control") }}<br>
             {% for error in form.ingridients.errors %}
                 <span>{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.size.label }}
-            {{ form.size(class="form-control") }}
+            {{ form.size.label }}<br>
+            {{ form.size(class="form-control") }}<br>
             {% for error in form.size.errors %}
                 <span>{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.mass.label }}
+            {{ form.mass.label }}<br>
             {{ form.mass(class="form-control") }}
             {% for error in form.mass.errors %}
                 <span>{{ error }}</span>

@@ -5,41 +5,6 @@
 {% endblock %}
 
 {% block content %}
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Time</th>
-            <th>Check</th>
-            <th>Status</th>
-            <th>Person ID</th>
-            <th>Address</th>
-            <th>Comment</th>
-            <th>Author</th>
-        </tr>
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.id_order }}</td>
-            <td>{{ order.time }}</td>
-            <td>{{ order.check }}</td>
-            <td>
-                <select onchange="changeOrderStatus(this.value, {{ order.id_order }})">
-                    <option value="accepted" {% if order.status == 'accepted' %} selected {% endif %}>Accepted</option>
-                    <option value="cooking" {% if order.status == 'cooking' %} selected {% endif %}>Cooking</option>
-                    <option value="delivering" {% if order.status == 'delivering' %} selected {% endif %}>Delivering</option>
-                    <option value="delivered" {% if order.status == 'delivered' %} selected {% endif %}>Delivered</option>
-                </select>
-            </td>
-            <td>{{ order.id_person }}</td>
-            <td>{{ order.address }}</td>
-            <td>{{ order.comment }}</td>
-            <td>{{ order.author }}</td>
-            <td>
-                <a href="#" onclick="deleteOrder({{ order.id_order }})">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-
     <script>
         function changeOrderStatus(newStatus, orderId) {
             var xhr = new XMLHttpRequest();
@@ -69,4 +34,41 @@
         xhr.send();
     }
     </script>
+    <table id="orders-table" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Time</th>
+                <th>Check</th>
+                <th>Status</th>
+                <th>Person ID</th>
+                <th>Address</th>
+                <th>Comment</th>
+                <th>Author</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id_order }}</td>
+                <td>{{ order.time }}</td>
+                <td>{{ order.check }}</td>
+                <td>
+                    <select onchange="changeOrderStatus(this.value, {{ order.id_order }})">
+                        <option value="accepted" {% if order.status == 'accepted' %} selected {% endif %}>Accepted</option>
+                        <option value="cooking" {% if order.status == 'cooking' %} selected {% endif %}>Cooking</option>
+                        <option value="delivering" {% if order.status == 'delivering' %} selected {% endif %}>Delivering</option>
+                        <option value="delivered" {% if order.status == 'delivered' %} selected {% endif %}>Delivered</option>
+                    </select>
+                </td>
+                <td>{{ order.id_person }}</td>
+                <td>{{ order.address }}</td>
+                <td>{{ order.comment }}</td>
+                <td>id:{{ order.author.id }} name:{{ order.author.name }}</td>
+                <td><a href="#" onclick="deleteOrder({{ order.id_order }})">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
