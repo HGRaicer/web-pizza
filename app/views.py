@@ -1,4 +1,3 @@
-# Импортируем необходимые модули и функции
 from app import app, models
 from flask import request, render_template, flash, redirect, url_for, session, abort, jsonify
 import sqlalchemy as sa
@@ -10,42 +9,32 @@ from functools import wraps
 from urllib.parse import urlsplit
 
 
-# Маршрут для регистрации нового пользователя
 @app.route("/registration", methods=["GET", "POST"])
 def registration():
-    # Если пользователь уже авторизован, перенаправляем его на главную страницу
     if current_user.is_authenticated:
         return redirect(url_for("menu"))
-    # Создаем форму регистрации
+
     form = RegistrationForm()
-    # Проверяем, отправлена ли форма и валидна ли она
     if form.validate_on_submit():
-        # Создаем нового пользователя с данными из формы
-        user = models.User(
-            name=form.name.data, email=form.email.data, phone=form.phone.data
-        )
-        # Хешируем пароль пользователя
+        user = models.User()
+        user.phone = form.phone.data
+        user.email = form.email.data
+        user.name = form.name.data
         user.hash_password(form.password.data)
-        # Устанавливаем начальное значение последних 5 заказов
         user.last5_order = ''
-        # Добавляем пользователя в базу данных и сохраняем изменения
         db.session.add(user)
         db.session.commit()
-        # Выводим сообщение об успешной регистрации
         flash("Congratulations, you are now a registered user!")
-        # Перенаправляем пользователя на страницу входа
+
         return redirect(url_for("login"))
     # Возвращаем шаблон страницы регистрации с формой
-    return render_template("registration.html", title="Sign In", form=form)
+    return render_template("registration.html", form=form)
 
 
-# Маршрут для входа в систему
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Если пользователь уже авторизован, перенаправляем его на главное меню
     if current_user.is_authenticated:
         return redirect(url_for("menu"))
-    # Создаем форму входа
     form = LoginForm()
     # Проверяем, отправлена ли форма и валидна ли она
     if form.validate_on_submit():
@@ -68,16 +57,12 @@ def login():
     return render_template("login.html", title="Sign In", form=form)
 
 
-# Маршрут для выхода из системы
 @app.route("/logout")
 def logout():
-    # Выход из системы
     logout_user()
-    # Перенаправляем пользователя на главное меню
     return redirect(url_for("menu"))
 
 
-# Маршрут для главного меню
 @app.route("/")
 def menu():
     # Получаем список всех продуктов
@@ -299,9 +284,9 @@ def admin_orders():
 def add_product():
     form = ProductForm()
     if form.validate_on_submit():
-        new_product = models.Products(name=form.name.data, price=form.price.data,\
-                                      ingridients=form.ingridients.data, size=form.size.data,\
-                                          mass=form.mass.data)
+        new_product = models.Products(name=form.name.data, price=form.price.data,
+                                      ingridients=form.ingridients.data, size=form.size.data,
+                                      mass=form.mass.data)
 
         db.session.add(new_product)
         db.session.commit()
@@ -364,3 +349,11 @@ def delete_product(product_id):
     db.session.commit()
 
     return redirect(url_for('admin_products'))
+
+
+@login_required
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    if current_user.is_authenticated:
+        orders = models.Order.query.filter(models.Order.id_person == current_user.id).all()
+        return render_template("profile.html", title="Your profile", orders=orders)
