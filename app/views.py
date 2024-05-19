@@ -4,9 +4,11 @@ import sqlalchemy as sa
 from app import db
 from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
 from flask_login import logout_user, current_user, login_user, login_required
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from functools import wraps
 from urllib.parse import urlsplit
+from app.forms import get_time_choices
+import json
 
 
 @app.route("/registration", methods=["GET", "POST"])
@@ -98,7 +100,7 @@ def add_to_cart():
 def cart():
     is_empty = True
     # Проверяем, есть ли в сессии корзина
-    if "cart" not in session:
+    if "cart" not in session or len(session["cart"]) == 0:
         is_empty = False
         return render_template("cart.html", is_empty=is_empty)
     # Получаем словарь идентификаторов товаров и их количеств в корзине
@@ -169,6 +171,8 @@ def increase_quantity_cart():
 def pay_cart():
     if current_user.is_authenticated:
         form = PayCartForm()
+        intervals = get_time_choices()
+        form.time.choices = intervals
         if form.validate_on_submit():
             # Получаем словарь идентификаторов товаров и их количеств в корзине
             cart_items = session.get("cart", {})
@@ -181,10 +185,9 @@ def pay_cart():
             # формируем чек
             check = f"{total_cost}|" + products
             # Получение текущего времени заказа
-            time = form.time.data
-            today = date.today()
-            date_with_time = datetime.combine(today, time)
-            formatted_date = date_with_time.strftime("%d/%m/%Y %H:%M")
+            now = datetime.now()
+            time = " ".join([now.strftime("%Y-%m-%d"), form.time.data])
+
 
             # Сохраняем информацию о заказе
             order = models.Order(
@@ -193,7 +196,7 @@ def pay_cart():
                 status="Принято",
                 comment=form.comment.data,
                 check=check,
-                time=formatted_date
+                time=time
             )
             # Очищаем корзину
             session["cart"].clear()
@@ -201,9 +204,20 @@ def pay_cart():
             db.session.commit()
             session["order"] = order.id_order
             return redirect(url_for("order_tracking"))
-        return render_template("pay_cart.html", title="Pay_cart", form=form)
+        return render_template("pay_cart.html", form=form, title="Pay_cart")
     else:
         return redirect(url_for("login"))
+
+@app.route('/get_delivery_times', methods=['POST'])
+def get_delivery_times():
+    time = request.form['time']
+    count_order = models.Order.count_time(time)
+    if count_order < 10:
+        return jsonify({'delivery_time': 'Низкая нагруженность'})
+    if count_order < 50:
+        return jsonify({'delivery_time': 'Средняя нагруженность'})
+    return jsonify({'delivery_time': 'Высокая нагруженность'})
+
 
 
 @app.route("/order_tracking", methods=["GET"])

@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "you-will-never-guess"
 # Устанавливаем URI для подключения к PostgreSQL
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "postgresql://postgres:1234@localhost:5432/web_pizza_db")
+    "postgresql://postgres:1234@localhost:5432/Web_pizza_DB")
 
 # Отключаем отслеживание изменений SQLAlchemy, что улучшает производительность
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

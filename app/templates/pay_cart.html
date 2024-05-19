@@ -1,26 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <form action="" method="post" novalidate>
+
+
+    <form name="MyForm" action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <p>
-            {{ form.number_card.label }}<br>
-            {{ form.number_card(size=32) }}<br>
-            {% for error in form.number_card.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.date.label }}<br>
-            {{ form.date(size=10) }}<br>
-            {% for error in form.date.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.cvc.label }}<br>
-            {{ form.cvc(size=10) }}<br>
-            {% for error in form.cvc.errors %}
+            {{ form.payment_method.label }}<br>
+            {{ form.payment_method() }}<br>
+            {% for error in form.payment_method.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
@@ -33,10 +21,8 @@
         </p>
         <p>
             {{ form.time.label }}<br>
-            {{ form.time(size=10) }}<br>
-            {% for error in form.time.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
+            {{ form.time(class='time') }}<br>
+            <div id="delivery_time"></div>
         </p>
         <p>
             {{ form.comment.label }}<br>
@@ -47,4 +33,22 @@
         </p>
         <p>{{ form.submit() }}</p>
     </form>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Targeting the SelectField by its class
+        $('.time').change(function() {
+            var time = $(this).val(); // This will give us the selected value
+            $.ajax({
+                url: "/get_delivery_times",
+                type: "POST",
+                data: {time: time},
+            }).done(function(data) {
+                $('#delivery_time').text(data.delivery_time); // Display the response
+
+            });
+        });
+    });
+    </script>
+
 {% endblock %}

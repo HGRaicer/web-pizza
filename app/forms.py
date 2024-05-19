@@ -1,11 +1,26 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField, DecimalField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DecimalField, RadioField
 from wtforms.validators import DataRequired, ValidationError, Optional
 import re
 from datetime import datetime, timedelta
 import sqlalchemy as sa
 from app import db
 from app.models import User
+
+
+def get_time_choices(start_hour=0, start_minute=0, end_hour=23, end_minute=59):
+    now = datetime.now()
+    start = datetime(now.year, now.month, now.day, start_hour, start_minute)
+    end = datetime(now.year, now.month, now.day, end_hour, end_minute)
+    intervals = []
+    while start < end:
+        str_interval = " - ".join([start.strftime("%H:%M"), (start + timedelta(minutes=30)).strftime("%H:%M")])
+        interval = ((start.strftime('%H:%M')),
+                    str_interval)
+        if interval[0] > (now + timedelta(minutes=30)).strftime('%H:%M'):
+            intervals.append(interval)
+        start = start + timedelta(minutes=30)
+    return intervals
 
 
 class RegistrationForm(FlaskForm):
@@ -51,20 +66,11 @@ class LoginForm(FlaskForm):
 
 
 class PayCartForm(FlaskForm):
-    number_card = StringField("Номер карты", validators=[DataRequired()])
-    cvc = StringField("Код", validators=[DataRequired()])
-    date = StringField("Срок", validators=[DataRequired()])
+    payment_method = RadioField("Способ оплаты", choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")])
     address = TextAreaField("Адрес доставки", validators=[DataRequired()])
-    time = TimeField("Время доставки", validators=[DataRequired()])
+    time = SelectField("Время доставки", choices=get_time_choices())
     comment = TextAreaField("Комментарий", validators=[Optional()])
     submit = SubmitField("Подтвердить")
-
-    def validate_time(self, field):
-        # Проверяем, соответствует ли время доставки требованиям
-        cut_time = datetime.now()
-        minimum_delivery_time = cut_time + timedelta(minutes=30)
-        if field.data < minimum_delivery_time.time():
-            raise ValidationError("Время доставки должно быть не ранее чем через полчаса.")
 
 
 class ProductForm(FlaskForm):
