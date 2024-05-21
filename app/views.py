@@ -1,14 +1,17 @@
-from app import app, models
-from flask import request, render_template, flash, redirect, url_for, session, abort, jsonify
-import sqlalchemy as sa
-from app import db
-from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
-from flask_login import logout_user, current_user, login_user, login_required
-from datetime import datetime, date, timedelta
+from datetime import datetime
 from functools import wraps
 from urllib.parse import urlsplit
+
+from flask import request, render_template, flash, redirect, url_for, session, jsonify
+import sqlalchemy as sa
+from flask_login import logout_user, current_user, login_user, login_required
+
+
+from app import app, models
+from app import db
+from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
 from app.forms import get_time_choices
-import json
+
 
 
 @app.route("/registration", methods=["GET", "POST"])

@@ -80,7 +80,7 @@
 .card__prices {
   display: flex;
   margin-bottom: 0px;
-  flex: 0 0;*/
+  flex: 0 0;
 }
 
 .card__price::after {

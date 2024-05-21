@@ -1,9 +1,11 @@
+import re
+from datetime import datetime, timedelta
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DecimalField, RadioField
 from wtforms.validators import DataRequired, ValidationError, Optional
-import re
-from datetime import datetime, timedelta
 import sqlalchemy as sa
+
 from app import db
 from app.models import User
 

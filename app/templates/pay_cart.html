@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=<Ваш API-ключ>"
+            type="text/javascript"></script>
+    <script src="../static/mapbasics.js" type="text/javascript"></script>
+{% endblock %}
+
 {% block content %}
-
-
-    <form name="MyForm" action="" method="post" novalidate>
+    <form name="MyForm" action="" method="post" onsubmit="return validateForm()" novalidate>
         {{ form.hidden_tag() }}
         <p>
             {{ form.payment_method.label }}<br>
@@ -14,10 +19,12 @@
         </p>
         <p>
             {{ form.address.label }}<br>
-            {{ form.address(size=50) }}<br>
+            {{ form.address(size=50, id='suggest') }}
+            <span id="message" style="color: red;"></span>
             {% for error in form.address.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
+            <div id="map" style="width: 500px; height: 300px"></div>
         </p>
         <p>
             {{ form.time.label }}<br>
@@ -49,6 +56,15 @@
             });
         });
     });
+    </script>
+    <script>
+    function validateForm() {
+        // Проверяем, есть ли текст в элементе message
+        if ($('#message').text().trim()) {
+            return false; // Предотвращаем отправку формы
+        }
+        return true;
+    } // Продолжаем отправку формы
     </script>
 
 {% endblock %}
