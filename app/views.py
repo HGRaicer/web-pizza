@@ -174,6 +174,8 @@ def increase_quantity_cart():
 def pay_cart():
     if current_user.is_authenticated:
         form = PayCartForm()
+        user = models.User.query.get(current_user.id)
+        form.payment_method.default = user.pay_method
         intervals = get_time_choices()
         form.time.choices = intervals
         if form.validate_on_submit():
@@ -191,11 +193,22 @@ def pay_cart():
             now = datetime.now()
             time = " ".join([now.strftime("%Y-%m-%d"), form.time.data])
 
+            list_address = [form.address.data]
+            if form.entrance.data:
+                list_address.append('под.' + form.entrance.data)
+            if form.door_code.data:
+                list_address.append('д.' + form.door_code.data)
+            if form.floor.data:
+                list_address.append('эт.' + form.floor.data)
+            if form.apartment.data:
+                list_address.append('кв.' + form.apartment.data)
+            address = ','.join(list_address)
+
 
             # Сохраняем информацию о заказе
             order = models.Order(
                 id_person=current_user.id,
-                address=form.address.data,
+                address=address,
                 status="Принято",
                 comment=form.comment.data,
                 check=check,
@@ -207,7 +220,7 @@ def pay_cart():
             db.session.commit()
             session["order"] = order.id_order
             return redirect(url_for("order_tracking"))
-        return render_template("pay_cart.html", form=form, title="Pay_cart")
+        return render_template("pay_cart.html", form=form, title="Pay_cart", user=user)
     else:
         return redirect(url_for("login"))
 
@@ -220,6 +233,8 @@ def get_delivery_times():
     if count_order < 50:
         return jsonify({'delivery_time': 'Средняя нагруженность'})
     return jsonify({'delivery_time': 'Высокая нагруженность'})
+
+
 
 
 

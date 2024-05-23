@@ -25,6 +25,7 @@ def get_time_choices(start_hour=0, start_minute=0, end_hour=23, end_minute=59):
     return intervals
 
 
+
 class RegistrationForm(FlaskForm):
     email = StringField("email", validators=[DataRequired()])
     password = PasswordField("password", validators=[DataRequired()])
@@ -70,6 +71,10 @@ class LoginForm(FlaskForm):
 class PayCartForm(FlaskForm):
     payment_method = RadioField("Способ оплаты", choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")])
     address = TextAreaField("Адрес доставки", validators=[DataRequired()])
+    entrance = StringField("Подъезд", validators=[Optional()])
+    door_code = StringField("Код двери", validators=[Optional()])
+    floor = StringField("Этаж", validators=[Optional()])
+    apartment = StringField("Квартира", validators=[Optional()])
     time = SelectField("Время доставки", choices=get_time_choices())
     comment = TextAreaField("Комментарий", validators=[Optional()])
     submit = SubmitField("Подтвердить")

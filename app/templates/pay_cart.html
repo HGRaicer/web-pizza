@@ -2,19 +2,29 @@
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=<Ваш API-ключ>"
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=3a339d32-e870-4a5e-8060-0ad31f438001"
             type="text/javascript"></script>
     <script src="../static/mapbasics.js" type="text/javascript"></script>
 {% endblock %}
 
 {% block content %}
-    <form name="MyForm" action="" method="post" onsubmit="return validateForm()" novalidate>
+    <form name="MyForm" action="" method="post" onsubmit="return validateForm()"  novalidate>
         {{ form.hidden_tag() }}
         <p>
             {{ form.payment_method.label }}<br>
-            {{ form.payment_method() }}<br>
+            {% for subfield in form.payment_method %}
+                <tr>
+                    {% if user.pay_method == subfield.data %}
+                        <td>{{ subfield(checked=True) }}</td>
+                    {% else %}
+                        <td>{{ subfield() }}</td>
+                    {% endif %}
+                    <td>{{ subfield.label }}</td>
+                    <br>
+                </tr>
+            {% endfor %}
             {% for error in form.payment_method.errors %}
-            <span style="color: red;">[{{ error }}]</span>
+                <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
@@ -24,6 +34,11 @@
             {% for error in form.address.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
+        <br>
+            {{ form.entrance.label }} {{ form.door_code.label }}<br>
+            {{ form.entrance(size=3) }} {{ form.door_code(size=3) }}<br>
+            {{ form.floor.label }} {{ form.apartment.label }}<br>
+            {{ form.floor(size=3) }} {{ form.apartment(size=3) }}<br>
             <div id="map" style="width: 500px; height: 300px"></div>
         </p>
         <p>

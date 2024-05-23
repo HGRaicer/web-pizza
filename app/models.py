@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     role: so.Mapped[str] = so.mapped_column(sa.String(50), default="user")
     phone: so.Mapped[str] = so.mapped_column(sa.String(15), unique=True)
     password: so.Mapped[str] = so.mapped_column(sa.String(165))
+    pay_method: so.Mapped[str] = so.mapped_column(sa.String(10), default='', nullable=True)
 
     posts: so.WriteOnlyMapped["Order"] = so.relationship(back_populates="author", passive_deletes=True)
 
