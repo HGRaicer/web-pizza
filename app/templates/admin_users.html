@@ -1,0 +1,67 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    Admin Users
+{% endblock %}
+
+{% block content %}
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Phone</th>
+            <th>Last 5 Orders</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+                <select onchange="changeUserRole(this.value, {{ user.id }})">
+                    <option value="user" {% if user.role == 'user' %} selected {% endif %}>User</option>
+                    <option value="admin" {% if user.role == 'admin' %} selected {% endif %}>Admin</option>
+                </select>
+            </td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.last5_order }}</td>
+            <td>
+                <a href="#" onclick="deleteUser({{ user.id }})">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+     <script>
+        function changeUserRole(newRole, userId) {
+            var xhr = new XMLHttpRequest();
+            var url = '/admin/users/change_role/' + userId + '/' + newRole;
+            xhr.open('GET', url, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    window.location.href = '/admin/users';
+                } else {
+                    console.error('Failed to change user role');
+                }
+            };
+            xhr.send();
+        }
+
+        function deleteUser(userId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/users/delete/' + userId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // Redirect to the admin page after successful deletion
+                window.location.href = '/admin';
+            } else {
+                console.error('Failed to delete user');
+            }
+        };
+        xhr.send();
+    }
+    </script>
+{% endblock %}

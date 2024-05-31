@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                setInterval(function() {
+                    $.ajax({
+                        url: "/get_order_status",
+                        type: "GET",
+                        success: function(data) {
+                            $("#order-status").text(data.status);
+                        },
+                        error: function() {
+                            alert("Error occurred while fetching order status.");
+                        }
+                    });
+                }, 30000);
+            });
+        </script>
+{% endblock %}
+{% block content %}
+     <h1>Order Status: <span id="order-status">{{ status_order }}</span></h1>
+{% endblock %}

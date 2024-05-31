@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }} - Web-Pizza</title>
+        {% else %}
+        <title>Welcome to Web-Pizza</title>
+        {% endif %}
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        <div class="flexible">
+            <a href="{{ url_for('menu') }}" >
+                <img src="../static/logotype.png" width="80" height="80" class="round-image">
+            </a>
+            <a href="{{ url_for('menu') }}">Web-Pizza</a>
+            <a href="{{ url_for('cart') }}">Cart</a>
+            {% if current_user.is_anonymous %}
+            <!--<a href="{{ url_for('registration') }}">Registration</a>-->
+            <a href="{{ url_for('login') }}">Login</a>
+            {% else %}
+            <a href="{{ url_for('profile') }}"> {{ current_user.name }} </a>
+            <!--<a href="{{ url_for('logout') }}">Logout</a>-->
+            {% endif %}
+        </div>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+        {% block body %}{% endblock %}
+    </body>
+</html>

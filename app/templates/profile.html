@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <link rel="stylesheet" href="static/menu.css" type="text/css" />
+    <div class="container">
+        <div class="column">
+            <h1>{{ current_user.name }}</h1>
+            <div>Role: {{ current_user.role }}</div>
+            <br>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        <div class="column">
+            <h1>Your Orders:</h1>
+            {% for order in orders %}
+            {% if current_user.id == order.id_person %}
+                {% if order.status == "Принято" %}
+                    <div class="accepted">
+                        Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
+                    </div>
+                    <div class="check">Чек</div>
+                    <br>
+                {% endif %}
+                {% if order.status == "Готовится" %}
+                    <div class="cooking">
+                        Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
+                    </div>
+                    <div class="check">Чек</div>
+                    <br>
+                {% endif %}
+                {% if order.status == "Доставляется" %}
+                    <div class="delivering">
+                        Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
+                    </div>
+                    <div class="check">Чек</div>
+                    <br>
+                {% endif %}
+                {% if order.status == "Доставлено" %}
+                    <div class="delivered">
+                        Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
+                    </div>
+                    <div class="check">Чек</div>
+                    <br>
+                {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
