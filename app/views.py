@@ -269,7 +269,6 @@ def admin_products():
     products = models.Products.query.all()
     return render_template('admin_products.html', products=products)
 
-
 @app.route('/admin/orders')
 @login_required
 @admin_required
@@ -286,7 +285,8 @@ def add_product():
     if form.validate_on_submit():
         new_product = models.Products(name=form.name.data, price=form.price.data,
                                       ingridients=form.ingridients.data, size=form.size.data,
-                                      mass=form.mass.data)
+                                      mass=form.mass.data,
+                                      image_url=form.image_url.data)
 
         db.session.add(new_product)
         db.session.commit()

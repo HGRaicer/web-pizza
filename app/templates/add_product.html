@@ -43,6 +43,13 @@
                 <span>{{ error }}</span>
             {% endfor %}
         </div>
+        <div class="form-group">
+            {{ form.image_url.label }}<br>
+            {{ form.image_url(class="form-control") }}
+            {% for error in form.image_url.errors %}
+                <span>{{ error }}</span>
+            {% endfor %}
+        </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 {% endblock %}

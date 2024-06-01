@@ -33,6 +33,7 @@ class Products(db.Model):
     ingridients: so.Mapped[str] = so.mapped_column(sa.String(150))
     size: so.Mapped[str] = so.mapped_column(sa.String(50))
     mass: so.Mapped[str] = so.mapped_column(sa.String(100))
+    image_url: so.Mapped[str] = so.mapped_column(sa.String(250), nullable=True)
 
 
 # Модель заказов для бд

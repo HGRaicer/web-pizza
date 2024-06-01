@@ -5,17 +5,20 @@
 {% endblock %}
 
 {% block content %}
-    <table border="1" id="ordertable">
-        <tr>
-            <th onclick="sortTable(0)">ID</th>
-            <th onclick="sortTable(1)">Time</th>
-            <th onclick="sortTable(2)">Check</th>
-            <th onclick="sortTable(3)">Status</th>
-            <th onclick="sortTable(4)">Person ID</th>
-            <th onclick="sortTable(5)">Address</th>
-            <th onclick="sortTable(6)">Comment</th>
-            <th onclick="sortTable(7)">Author</th>
-        </tr>
+<div class="row justify-content-center">
+    <table class="table" style="width: 85%" border="1">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Time</th>
+                <th>Check</th>
+                <th>Status</th>
+                <th>Person ID</th>
+                <th>Address</th>
+                <th>Comment</th>
+                <th>Author</th>
+            </tr>
+        </thead>
         {% for order in orders %}
         <tr>
             <td>{{ order.id_order }}</td>
@@ -32,13 +35,14 @@
             <td>{{ order.id_person }}</td>
             <td>{{ order.address }}</td>
             <td>{{ order.comment }}</td>
-            <td>{{ order.author }}</td>
+            <td>{{ order.author.name }}</td>
             <td>
-                <a href="#" onclick="deleteOrder({{ order.id_order }})">Delete</a>
+                <a class="btn btn-danger" href="#" onclick="deleteOrder({{ order.id_order }})">Delete</a>
             </td>
         </tr>
         {% endfor %}
     </table>
+</div>
 
     <script>
         function changeOrderStatus(newStatus, orderId) {

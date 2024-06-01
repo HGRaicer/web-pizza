@@ -73,4 +73,4 @@ class ProductForm(FlaskForm):
     ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
-# image = TextAreaField("Image", validators=[DataRequired()])
+    image_url = TextAreaField("Image", validators=[DataRequired()])

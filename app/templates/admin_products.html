@@ -6,33 +6,39 @@
 
 {% block content %}
     <div style="margin-bottom: 20px;">
-        <a href="{{ url_for('add_product') }}">Add Product</a>
+        <a class="btn btn-primary" style="margin-left: 10%; margin-top: 20px;" href="{{ url_for('add_product') }}">Add Product</a>
     </div>
 
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Ingridients</th>
-            <th>Size</th>
-            <th>Mass</th>
-        </tr>
-        {% for product in products %}
-        <tr>
-            <td>{{ product.id }}</td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.price }}</td>
-            <td>{{ product.ingridients }}</td>
-            <td>{{ product.size }}</td>
-            <td>{{ product.mass }}</td>
-            <td>
-                <a href="#" onclick="editProduct({{ product.id }})">Edit</a>
-                <a href="#" onclick="deleteProduct({{ product.id }})">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="row justify-content-center">
+        <table class="table table-sm" style="width: 80%" border="1">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Ingridients</th>
+                    <th>Size</th>
+                    <th>Mass</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.ingridients }}</td>
+                <td>{{ product.size }}</td>
+                <td>{{ product.mass }}</td>
+                <td>{{ product.image_url }}</td>
+                <td style="width: 20%;">
+                    <a class="btn btn-warning" href="#" onclick="editProduct({{ product.id }})">Edit</a>
+                    <a class="btn btn-danger" href="#" onclick="deleteProduct({{ product.id }})">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
     <script>
         function editProduct(productId) {
