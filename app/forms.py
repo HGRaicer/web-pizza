@@ -70,7 +70,7 @@ class LoginForm(FlaskForm):
 
 class PayCartForm(FlaskForm):
     payment_method = RadioField("Способ оплаты", choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")])
-    address = TextAreaField("Адрес доставки", validators=[DataRequired()])
+    address = StringField("Адрес доставки", validators=[DataRequired()])
     entrance = StringField("Подъезд", validators=[Optional()])
     door_code = StringField("Код двери", validators=[Optional()])
     floor = StringField("Этаж", validators=[Optional()])
