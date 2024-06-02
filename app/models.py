@@ -16,7 +16,9 @@ class User(UserMixin, db.Model):
     password: so.Mapped[str] = so.mapped_column(sa.String(300))
     last5_order: so.Mapped[str] = so.mapped_column(sa.String(100))
 
-    posts: so.WriteOnlyMapped["Order"] = so.relationship(back_populates="author", passive_deletes=True)
+    posts: so.WriteOnlyMapped["Order"] = so.relationship(
+        back_populates="author", passive_deletes=True
+    )
 
     def hash_password(self, password):
         self.password = generate_password_hash(password)  # мб str(password)?

@@ -20,28 +20,28 @@
                     <div class="accepted">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="">Чек</a>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
                 {% if order.status == "Готовится" %}
                     <div class="cooking">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="">Чек</a>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
                 {% if order.status == "Доставляется" %}
                     <div class="delivering">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="">Чек</a>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
                 {% if order.status == "Доставлено" %}
                     <div class="delivered">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="">Чек</a>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
             {% endfor %}

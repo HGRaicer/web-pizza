@@ -1,5 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField, DecimalField
+from wtforms import (
+    StringField,
+    PasswordField,
+    BooleanField,
+    SubmitField,
+    TextAreaField,
+    TimeField,
+    DecimalField,
+)
 from wtforms.validators import DataRequired, ValidationError, Optional
 import re
 from datetime import datetime, timedelta
@@ -19,8 +27,9 @@ class RegistrationForm(FlaskForm):
     def validate_password(self, field):
         # Проверка на все параметры (длина, спец символы и тп)
         if not re.match(
-                r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
-                field.data, ):
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
+            field.data,
+        ):
             raise ValidationError("Unvalid password")
 
     def validate_phone(self, field):
@@ -34,7 +43,7 @@ class RegistrationForm(FlaskForm):
     def validate_email(self, field):
         # Проверяем, соответствует ли адрес электронной почты требованиям
         if not re.match(
-                r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
+            r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
         ):
             raise ValidationError("Unvailde email")
         # Проверка на наличие пользователя в бд
@@ -64,12 +73,14 @@ class PayCartForm(FlaskForm):
         cut_time = datetime.now()
         minimum_delivery_time = cut_time + timedelta(minutes=30)
         if field.data < minimum_delivery_time.time():
-            raise ValidationError("Время доставки должно быть не ранее чем через полчаса.")
+            raise ValidationError(
+                "Время доставки должно быть не ранее чем через полчаса."
+            )
 
 
 class ProductForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    price = DecimalField('Price', validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    price = DecimalField("Price", validators=[DataRequired()])
     ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
@@ -85,8 +96,9 @@ class EditForm(FlaskForm):
     def validate_password(self, field):
         # Проверка на все параметры (длина, спец символы и тп)
         if not re.match(
-                r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
-                field.data, ):
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
+            field.data,
+        ):
             raise ValidationError("Unvalid password")
 
     def validate_phone(self, field):
@@ -100,7 +112,7 @@ class EditForm(FlaskForm):
     def validate_email(self, field):
         # Проверяем, соответствует ли адрес электронной почты требованиям
         if not re.match(
-                r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
+            r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
         ):
             raise ValidationError("Unvalid email")
         # Проверка на наличие пользователя в бд
