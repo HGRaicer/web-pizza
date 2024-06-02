@@ -73,6 +73,18 @@ def get_products_from_check(check):
     return products
 
 
+def get_products_dictionary_from_check(check):
+    products = {}
+
+    for c in check.split('|'):
+        if ':' in c:
+            data = c.split(':')
+            product_name = models.Products.query.filter(models.Products.id==data[0]).all()[0].name
+            products[product_name] = data[1]
+
+    return products
+
+
 def get_recommended_products(user_id, default_product_ids):
     last_orders = (
         models.Order.query
@@ -365,6 +377,16 @@ def update_order_status(order_id, new_status):
     db.session.commit()
 
     return redirect(url_for('admin_orders'))
+
+
+@app.route('/admin/orders/<int:order_id>/check', methods=['GET'])
+@login_required
+@admin_required
+def order_get_check(order_id):
+    order = models.Order.query.get_or_404(order_id)
+    products_dir = get_products_dictionary_from_check(order.check)
+
+    return render_template("order_check.html", check_price=order.check.split('|')[0], products_dir=products_dir)
 
 
 @app.route('/admin/users/delete/<int:user_id>', methods=['GET', 'POST'])

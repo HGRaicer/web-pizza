@@ -23,7 +23,7 @@
         <tr>
             <td>{{ order.id_order }}</td>
             <td>{{ order.time }}</td>
-            <td>{{ order.check }}</td>
+            <td><a class="btn btn-info" href="#" onclick="getOrderCheck({{ order.id_order }})">{{ order.check }}</a></td>
             <td>
                 <select onchange="changeOrderStatus(this.value, {{ order.id_order }})">
                     <option value="accepted" {% if order.status == 'accepted' %} selected {% endif %}>Accepted</option>
@@ -50,6 +50,12 @@
             }, 30000) 
     </script>
     <script>
+        function getOrderCheck(orderId) {
+            var xhr = new XMLHttpRequest();
+            var url = '/admin/orders/' + orderId + '/check';
+            window.location = url;
+        }
+
         function changeOrderStatus(newStatus, orderId) {
             var xhr = new XMLHttpRequest();
             var url = '/admin/orders/update_status/' + orderId + '/' + newStatus;
