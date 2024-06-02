@@ -74,3 +74,36 @@ class ProductForm(FlaskForm):
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
     image_url = TextAreaField("Image", validators=[DataRequired()])
+
+
+class EditForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    phone = StringField("Телефон", validators=[DataRequired()])
+    name = StringField("Имя", validators=[DataRequired()])
+
+    def validate_password(self, field):
+        # Проверка на все параметры (длина, спец символы и тп)
+        if not re.match(
+                r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
+                field.data, ):
+            raise ValidationError("Unvalid password")
+
+    def validate_phone(self, field):
+        # Проверка на все параметры телефона
+        if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
+            raise ValidationError("Unvailde phone")
+        user = db.session.scalar(sa.select(User).where(User.phone == field.data))
+        if user is not None:
+            raise ValidationError("Please use a different phone number.")
+
+    def validate_email(self, field):
+        # Проверяем, соответствует ли адрес электронной почты требованиям
+        if not re.match(
+                r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
+        ):
+            raise ValidationError("Unvalid email")
+        # Проверка на наличие пользователя в бд
+        user = db.session.scalar(sa.select(User).where(User.email == field.data))
+        if user is not None:
+            raise ValidationError("Please use a different email address.")

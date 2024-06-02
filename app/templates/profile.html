@@ -1,48 +1,71 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <link rel="stylesheet" href="static/menu.css" type="text/css" />
-    <div class="container">
+<link rel="stylesheet" href="static/menu.css" type="text/css" />
+    <div class="container-prof">
         <div class="column">
             <h1>{{ current_user.name }}</h1>
-            <div>Role: {{ current_user.role }}</div>
+            <div>Роль: {{ current_user.role }}</div>
+            <div>Почта: {{ current_user.email }}</div>
+            <div>Телефон: {{ current_user.phone }}</div>
             <br>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a class="btn btn-success mb-2" href="#" onclick="editProfile()">Редактировать</a>
+            <br>
+            <a class="btn btn-danger" href="{{ url_for('logout') }}">Выйти</a>
         </div>
         <div class="column">
-            <h1>Your Orders:</h1>
+            <h1>Ваши заказы:</h1>
             {% for order in orders %}
-            {% if current_user.id == order.id_person %}
                 {% if order.status == "Принято" %}
                     <div class="accepted">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <div class="check">Чек</div>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
                 {% if order.status == "Готовится" %}
                     <div class="cooking">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <div class="check">Чек</div>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
                 {% if order.status == "Доставляется" %}
                     <div class="delivering">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <div class="check">Чек</div>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
                 {% if order.status == "Доставлено" %}
                     <div class="delivered">
                         Заказ #{{ order.id_order}} от {{ order.time}} по адресу {{ order.address}}. Cтатус заказа: {{ order.status}}
                     </div>
-                    <div class="check">Чек</div>
+                    <a class="check" onclick="getOrderCheck({{order.id_order}})" href="#">Чек</a>
                     <br>
                 {% endif %}
-            {% endif %}
             {% endfor %}
         </div>
     </div>
+<script>
+    function editProfile() {
+        var xhr = new XMLHttpRequest();
+        var url = '/profile/edit';
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = url;
+            } else {
+                console.error('Failed to edit profile');
+            }
+        };
+        xhr.send();
+    }
+
+    function getOrderCheck(orderId) {
+            var xhr = new XMLHttpRequest();
+            var url = '/profile/orders/' + orderId + '/check';
+            window.location = url;
+        }
+</script>
 {% endblock %}

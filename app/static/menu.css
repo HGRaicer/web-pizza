@@ -156,7 +156,8 @@
     width: 60px; 
     height: 60px; 
 }
-.container {
+
+.container-prof {
     display: flex;
 }
 

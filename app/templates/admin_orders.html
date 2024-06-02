@@ -26,10 +26,10 @@
             <td><a class="btn btn-info" href="#" onclick="getOrderCheck({{ order.id_order }})">{{ order.check }}</a></td>
             <td>
                 <select onchange="changeOrderStatus(this.value, {{ order.id_order }})">
-                    <option value="accepted" {% if order.status == 'accepted' %} selected {% endif %}>Accepted</option>
-                    <option value="cooking" {% if order.status == 'cooking' %} selected {% endif %}>Cooking</option>
-                    <option value="delivering" {% if order.status == 'delivering' %} selected {% endif %}>Delivering</option>
-                    <option value="delivered" {% if order.status == 'delivered' %} selected {% endif %}>Delivered</option>
+                    <option value="Принято" {% if order.status == 'Принято' %} selected {% endif %}>Принято</option>
+                    <option value="Готовится" {% if order.status == 'Готовится' %} selected {% endif %}>Готовится</option>
+                    <option value="Доставляется" {% if order.status == 'Доставляется' %} selected {% endif %}>Доставляется</option>
+                    <option value="Доставлено" {% if order.status == 'Доставлено' %} selected {% endif %}>Доставлено</option>
                 </select>
             </td>
             <td>{{ order.id_person }}</td>

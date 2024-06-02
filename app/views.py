@@ -2,11 +2,67 @@ from app import app, models
 from flask import request, render_template, flash, redirect, url_for, session, abort, jsonify
 import sqlalchemy as sa
 from app import db
-from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
+from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm, EditForm
 from flask_login import logout_user, current_user, login_user, login_required
 from datetime import datetime, date
 from functools import wraps
 from urllib.parse import urlsplit
+
+
+def get_products_from_check(check):
+    products = []
+
+    for c in check.split('|'):
+        if ':' in c:
+            products.append(c.split(':')[0])
+
+    return products
+
+
+def get_products_dictionary_from_check(check):
+    products = {}
+
+    for c in check.split('|'):
+        if ':' in c:
+            data = c.split(':')
+            product_name = models.Products.query.filter(models.Products.id==data[0]).all()[0].name
+            products[product_name] = data[1]
+
+    return products
+
+
+def get_recommended_products(user_id, default_product_ids):
+    last_orders = (
+        models.Order.query
+        .filter(models.Order.id_person == user_id)
+        .all()
+    )
+    last_orders = reversed(last_orders[-4:])
+
+    recommended_products_ids = []
+    for order in last_orders:
+        recommended_products_ids.extend(get_products_from_check(order.check))
+
+    recommended_products = []
+    for id in recommended_products_ids:
+        recommended_products.extend(models.Products.query.filter(models.Products.id==id).all())
+
+    recommended_products = list(set(recommended_products))
+
+    if len(recommended_products) < 4:
+        default_products = (
+            models.Products.query
+            .filter(models.Products.id.in_(default_product_ids))
+            .all()
+        )
+
+        additional_products = [item for item in default_products if item not in recommended_products]
+
+        recommended_products.extend(additional_products)
+    elif len(recommended_products) > 4:
+        recommended_products = recommended_products[:4]
+     
+    return recommended_products
 
 
 @app.route("/registration", methods=["GET", "POST"])
@@ -63,63 +119,6 @@ def logout():
     return redirect(url_for("menu"))
 
 
-def get_products_from_check(check):
-    products = []
-
-    for c in check.split('|'):
-        if ':' in c:
-            products.append(c.split(':')[0])
-
-    return products
-
-
-def get_products_dictionary_from_check(check):
-    products = {}
-
-    for c in check.split('|'):
-        if ':' in c:
-            data = c.split(':')
-            product_name = models.Products.query.filter(models.Products.id==data[0]).all()[0].name
-            products[product_name] = data[1]
-
-    return products
-
-
-def get_recommended_products(user_id, default_product_ids):
-    last_orders = (
-        models.Order.query
-        .filter(models.Order.id_person == user_id)
-        .order_by(models.Order.time.desc())
-        .limit(4)
-        .all()
-    )
-
-    recommended_products_ids = []
-    for order in last_orders:
-        recommended_products_ids.extend(get_products_from_check(order.check))
-
-    recommended_products = []
-    for id in recommended_products_ids:
-        recommended_products.extend(models.Products.query.filter(models.Products.id==id).all())
-
-    recommended_products = list(set(recommended_products))
-
-    if len(recommended_products) < 4:
-        default_products = (
-            models.Products.query
-            .filter(models.Products.id.in_(default_product_ids))
-            .all()
-        )
-
-        additional_products = [item for item in default_products if item not in recommended_products]
-
-        recommended_products.extend(additional_products)
-    elif len(recommended_products) > 4:
-        recommended_products = recommended_products[:4]
-     
-    return recommended_products
-
-
 @app.route("/")
 def menu():
     # Получаем список всех продуктов
@@ -157,9 +156,8 @@ def add_to_cart():
 # Маршрут для просмотра корзины
 @app.route("/cart")
 def cart():
-    is_empty = True
     # Проверяем, есть ли в сессии корзина
-    if "cart" not in session:
+    if "cart" not in session or len(session["cart"]) == 0:
         is_empty = False
         return render_template("cart.html", is_empty=is_empty)
     # Получаем словарь идентификаторов товаров и их количеств в корзине
@@ -423,8 +421,30 @@ def delete_product(product_id):
 
 
 @login_required
-@app.route("/profile", methods=["GET", "POST"])
+@app.route("/profile", methods=["GET"])
 def profile():
     if current_user.is_authenticated:
         orders = models.Order.query.filter(models.Order.id_person == current_user.id).all()
-        return render_template("profile.html", title="Your profile", orders=orders)
+        orders = reversed(orders[-8:])
+        return render_template("profile.html", title="Ваш профиль", orders=orders)
+
+
+@app.route('/profile/edit', methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    user = models.User.query.get_or_404(current_user.id)
+    form = EditForm(obj=user)
+    if form.validate_on_submit():
+        form.populate_obj(user)
+        db.session.commit()
+        return redirect(url_for('profile'))
+    return render_template('edit_profile.html', form=form)
+
+
+@app.route('/profile/orders/<int:order_id>/check', methods=['GET'])
+@login_required
+def profile_get_check(order_id):
+    order = models.Order.query.get_or_404(order_id)
+    products_dir = get_products_dictionary_from_check(order.check)
+
+    return render_template("profile_check.html", check_price=order.check.split('|')[0], products_dir=products_dir)
