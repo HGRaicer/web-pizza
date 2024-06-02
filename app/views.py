@@ -145,6 +145,14 @@ def menu():
     products = models.Products.query.all()
     # Получаем список рекомендуемых продуктов
     default_products_ids = [1, 2, 3, 4]
+
+    if current_user.is_authenticated:
+        return render_template(
+        "menu.html",
+        products=products,
+        recommended_products=default_products_ids,
+    )
+    
     recommended_products = get_recommended_products(
         current_user.id, default_products_ids
     )
