@@ -5,19 +5,20 @@ from flask_login import LoginManager
 import os
 
 app = Flask(__name__)
-# Устанавливаем секретный ключ для приложения, используя переменную окружения или значение по умолчанию
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "you-will-never-guess"
-# Устанавливаем URI для подключения к PostgreSQL
+
+app.config["SECRET_KEY"] = (
+    os.environ.get("SECRET_KEY") or "you-will-never-guess"
+)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     "postgresql://postgres:1234@localhost:5432/web_pizza_db"
 )
 
-# Отключаем отслеживание изменений SQLAlchemy, что улучшает производительность
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy()
 db.init_app(app)
-migrate = Migrate(app, db)  # Инициализируем для работы с миграциями базы данных
-# Инициализируем LoginManager для работы с аутентификацией пользователей
+migrate = Migrate(app, db)
+
 login = LoginManager(app)
 login.login_view = "login"
 

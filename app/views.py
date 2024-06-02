@@ -6,12 +6,17 @@ from flask import (
     redirect,
     url_for,
     session,
-    abort,
     jsonify,
 )
 import sqlalchemy as sa
 from app import db
-from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm, EditForm
+from app.forms import (
+    RegistrationForm,
+    LoginForm,
+    PayCartForm,
+    ProductForm,
+    EditForm,
+)
 from flask_login import logout_user, current_user, login_user, login_required
 from datetime import datetime, date
 from functools import wraps
@@ -45,7 +50,9 @@ def get_products_dictionary_from_check(check):
 
 
 def get_recommended_products(user_id, default_product_ids):
-    last_orders = models.Order.query.filter(models.Order.id_person == user_id).all()
+    last_orders = models.Order.query.filter(
+        models.Order.id_person == user_id
+    ).all()
     last_orders = reversed(last_orders[-4:])
 
     recommended_products_ids = []
@@ -66,7 +73,9 @@ def get_recommended_products(user_id, default_product_ids):
         ).all()
 
         additional_products = [
-            item for item in default_products if item not in recommended_products
+            item
+            for item in default_products
+            if item not in recommended_products
         ]
 
         recommended_products.extend(additional_products)
@@ -142,7 +151,9 @@ def menu():
     # Возвращаем шаблон главного меню с продуктами
 
     return render_template(
-        "menu.html", products=products, recommended_products=recommended_products
+        "menu.html",
+        products=products,
+        recommended_products=recommended_products,
     )
 
 
@@ -151,8 +162,6 @@ def menu():
 def add_to_cart():
     # Получаем идентификатор товара из формы
     product_id = request.form["product_id"]
-    # Получаем товар по идентификатору
-    product = models.Products.query.get(product_id)
     # Если корзина еще не создана, создаем ее
     if "cart" not in session:
         session["cart"] = {}
@@ -190,7 +199,9 @@ def cart():
         products_dict[product.id] = {"product": product, "quantity": quantity}
         total_cost += product.price * quantity
     # Возвращаем шаблон корзины с товарами и их количеством
-    return render_template("cart.html", products=products_dict, total_cost=total_cost)
+    return render_template(
+        "cart.html", products=products_dict, total_cost=total_cost
+    )
 
 
 # Маршрут для удаления товара из корзины
@@ -251,7 +262,9 @@ def pay_cart():
             # формируем строчку для чека вида id продукта:количество| и подсчитываем общую сумму
             for id_product, quantity in cart_items.items():
                 products = products + f"{id_product}:{quantity}|"
-                total_cost += models.Products.query.get(id_product).price * quantity
+                total_cost += (
+                    models.Products.query.get(id_product).price * quantity
+                )
             # формируем чек
             check = f"{total_cost}|" + products
             # Получение текущего времени заказа
@@ -328,7 +341,9 @@ def admin_users():
     return render_template("admin_users.html", users=users)
 
 
-@app.route("/admin/users/change_role/<int:user_id>/<new_role>", methods=["GET"])
+@app.route(
+    "/admin/users/change_role/<int:user_id>/<new_role>", methods=["GET"]
+)
 @login_required
 @admin_required
 def change_user_role(user_id, new_role):
@@ -386,10 +401,14 @@ def edit_product(product_id):
         form.populate_obj(product)
         db.session.commit()
         return redirect(url_for("admin_products"))
-    return render_template("edit_product.html", form=form, product_id=product_id)
+    return render_template(
+        "edit_product.html", form=form, product_id=product_id
+    )
 
 
-@app.route("/admin/orders/update_status/<int:order_id>/<new_status>", methods=["GET"])
+@app.route(
+    "/admin/orders/update_status/<int:order_id>/<new_status>", methods=["GET"]
+)
 @login_required
 @admin_required
 def update_order_status(order_id, new_status):
@@ -455,7 +474,9 @@ def profile():
             models.Order.id_person == current_user.id
         ).all()
         orders = reversed(orders[-8:])
-        return render_template("profile.html", title="Ваш профиль", orders=orders)
+        return render_template(
+            "profile.html", title="Ваш профиль", orders=orders
+        )
 
 
 @app.route("/profile/edit", methods=["GET", "POST"])

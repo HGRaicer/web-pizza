@@ -1,4 +1,3 @@
-from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
@@ -44,7 +43,9 @@ class Order(db.Model):
     time: so.Mapped[str] = so.mapped_column(sa.String(100))
     check: so.Mapped[str] = so.mapped_column(sa.String(100))
     status: so.Mapped[str] = so.mapped_column(sa.String(100))
-    id_person: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
+    id_person: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey(User.id), index=True
+    )
     address: so.Mapped[str] = so.mapped_column(sa.String(100))
     comment: so.Mapped[str] = so.mapped_column(sa.String(200))
 

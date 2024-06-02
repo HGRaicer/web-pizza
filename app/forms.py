@@ -36,7 +36,9 @@ class RegistrationForm(FlaskForm):
         # Проверка на все параметры телефона
         if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
             raise ValidationError("Unvailde phone")
-        user = db.session.scalar(sa.select(User).where(User.phone == field.data))
+        user = db.session.scalar(
+            sa.select(User).where(User.phone == field.data)
+        )
         if user is not None:
             raise ValidationError("Please use a different phone number.")
 
@@ -47,7 +49,9 @@ class RegistrationForm(FlaskForm):
         ):
             raise ValidationError("Unvailde email")
         # Проверка на наличие пользователя в бд
-        user = db.session.scalar(sa.select(User).where(User.email == field.data))
+        user = db.session.scalar(
+            sa.select(User).where(User.email == field.data)
+        )
         if user is not None:
             raise ValidationError("Please use a different email address.")
 
@@ -105,7 +109,9 @@ class EditForm(FlaskForm):
         # Проверка на все параметры телефона
         if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
             raise ValidationError("Unvailde phone")
-        user = db.session.scalar(sa.select(User).where(User.phone == field.data))
+        user = db.session.scalar(
+            sa.select(User).where(User.phone == field.data)
+        )
         if user is not None:
             raise ValidationError("Please use a different phone number.")
 
@@ -116,6 +122,8 @@ class EditForm(FlaskForm):
         ):
             raise ValidationError("Unvalid email")
         # Проверка на наличие пользователя в бд
-        user = db.session.scalar(sa.select(User).where(User.email == field.data))
+        user = db.session.scalar(
+            sa.select(User).where(User.email == field.data)
+        )
         if user is not None:
             raise ValidationError("Please use a different email address.")
