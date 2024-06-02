@@ -146,11 +146,14 @@ def menu():
     # Получаем список рекомендуемых продуктов
     default_products_ids = [1, 2, 3, 4]
 
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
+        default_products = models.Products.query.filter(
+            models.Products.id.in_(default_products_ids)
+        ).all()
         return render_template(
         "menu.html",
         products=products,
-        recommended_products=default_products_ids,
+        recommended_products=default_products,
     )
     
     recommended_products = get_recommended_products(
