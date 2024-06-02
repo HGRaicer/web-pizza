@@ -6,14 +6,15 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <table class="table table-sm" style="width: 80%" border="1">
+    <table class="table table-sm" style="width: 80%" border="1" id="ordertable">
         <thead class="thead-dark">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Phone</th>
+                <th onclick="sortTable(0)">ID</th>
+                <th onclick="sortTable(1)">Name</th>
+                <th onclick="sortTable(2)">Email</th>
+                <th onclick="sortTable(3)">Role</th>
+                <th onclick="sortTable(4)">Person ID</th>
+                <th onclick="sortTable(5)">Phone</th>
             </tr>
         </thead>
         {% for user in users %}

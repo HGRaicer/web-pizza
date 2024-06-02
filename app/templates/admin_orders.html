@@ -6,17 +6,17 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <table class="table" style="width: 85%" border="1">
+    <table class="table" style="width: 85%" border="1" id="ordertable">
         <thead class="thead-dark">
             <tr>
-                <th>ID</th>
-                <th>Time</th>
-                <th>Check</th>
-                <th>Status</th>
-                <th>Person ID</th>
-                <th>Address</th>
-                <th>Comment</th>
-                <th>Author</th>
+                <th onclick="sortTable(0)">ID</th>
+                <th onclick="sortTable(1)">Time</th>
+                <th onclick="sortTable(2)">Check</th>
+                <th onclick="sortTable(3)">Status</th>
+                <th onclick="sortTable(4)">Person ID</th>
+                <th onclick="sortTable(5)">Address</th>
+                <th onclick="sortTable(6)">Comment</th>
+                <th onclick="sortTable(7)">Author</th>
             </tr>
         </thead>
         {% for order in orders %}
@@ -43,7 +43,12 @@
         {% endfor %}
     </table>
 </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        setInterval(function(){
+            $(document).load('/admin/orders');
+            }, 30000) 
+    </script>
     <script>
         function changeOrderStatus(newStatus, orderId) {
             var xhr = new XMLHttpRequest();
