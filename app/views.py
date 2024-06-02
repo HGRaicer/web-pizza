@@ -357,3 +357,28 @@ def profile():
     if current_user.is_authenticated:
         orders = models.Order.query.filter(models.Order.id_person == current_user.id).all()
         return render_template("profile.html", title="Your profile", orders=orders)
+
+
+@app.route('/submit/<int:user_id>/', methods=['POST'])
+@login_required
+def edit_user(user_id):
+    user = models.user.query.get_or_404(user_id)
+    form = EditForm(obj=user)
+    if form.validate_on_submit():
+        form.populate_obj(user)
+        db.session.commit()
+        return redirect(url_for('profile'))
+    return render_template('edit_user.html', form=form, user_id=user_id)
+
+
+
+
+
+
+
+
+
+
+
+
+    

@@ -14,13 +14,11 @@
                 <img src="../static/logotype.png" width="80" height="80" class="round-image">
             </a>
             <a href="{{ url_for('menu') }}">Web-Pizza</a>
-            <a href="{{ url_for('cart') }}">Cart</a>
+            <a href="{{ url_for('cart') }}">Корзина</a>
             {% if current_user.is_anonymous %}
-            <!--<a href="{{ url_for('registration') }}">Registration</a>-->
-            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('login') }}">Войти</a>
             {% else %}
             <a href="{{ url_for('profile') }}"> {{ current_user.name }} </a>
-            <!--<a href="{{ url_for('logout') }}">Logout</a>-->
             {% endif %}
         </div>
         <hr>
