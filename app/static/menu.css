@@ -1,156 +1,158 @@
-.cards {
-  display: grid;
-  /* Автоматически заполняем на всю ширину grid-контейнера */
-  grid-template-columns: repeat(auto-fill, 225px);
-  width: 100%;
-  max-width: 1000px; /* Ширина grid-контейнера */
-  justify-content: center;
-  justify-items: center; /* Размещаем карточку по центру */
-  column-gap: 30px; /* Отступ между колонками */
-  row-gap: 40px; /* Отступ между рядами */
-  margin: 0 auto;
+html{
+    font-size: 62.5%;
+    overflow-x: hidden;
 }
 
-.card {
-  width: 225px;
-  min-height: 350px;
-  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column; /* Размещаем элементы в колонку */
-  border-radius: 20px;
-  transition: 0.2s;
-  position: relative;
-  background-color: #FFFFFF;
+body{
+    background: #eee;
 }
 
-/* При наведении на карточку - меняем цвет тени */
-.card:hover {
-  box-shadow: 4px 8px 16px rgba(255, 102, 51, 0.2);
+.container{
+    max-width: 1200px;
+    margin:0 auto;
+    padding:3rem 2rem;
+}
+.container .title{
+    font-size: 3.5rem;
+    color:#444;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+    text-align: center;
 }
 
-.card__top {
-  flex: 0 0 220px; /* Задаем высоту 220px, запрещаем расширение и сужение по высоте */
-  position: relative;
-  overflow: hidden; /* Скрываем, что выходит за пределы */
+.container .products-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+    gap:2rem;
 }
 
-/* Контейнер для картинки */
-.card__image {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.container .products-container .product{
+    text-align: center
+    padding:3rem 2rem;
+    background: #fff;
+    cursor: pointer;
 }
 
-.card__image > img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Встраиваем картинку в контейнер card__image */
-  border-radius: 20px;
-  transition: 0.2s;
+.container .products-container .product:hover{
+    cursor:pointer; /* это просто заглушка */
 }
 
-/* При наведении - увеличиваем картинку */
-.card__image:hover > img {
-  transform: scale(1.1);
+.container .products-container .product img{
+    height: 25rem;
 }
 
-/* Размещаем скидку на товар относительно изображения */
-.card__label {
-  padding: 4px 8px;
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: #ff6633;
-  border-radius: 4px;
-  font-weight: 400;
-  font-size: 16px;
-  color: #fff;
+.container .products-container .product:hover img{
+    transform: scale(.9);
+}
+.container .products-container .product h3{
+    padding:.5rem 0;
+    font-size: 2rem;
+    color: #444;
+    text-align: center;
+}
+.container .products-container .product:hover h3{
+    color: #27ae60;
 }
 
-.card__bottom {
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 auto; /* Занимаем всю оставшуюся высоту карточки */
-  padding: 10px;
+.container .products-container .product .price{
+    font-size: 2.5rem;
+    color: #444;
+    text-align: center;
 }
 
-.card__prices {
-  display: flex;
-  margin-bottom: 0px;
-  flex: 0 0;*/
+.products-preview{
+    position:fixed;
+    top:0; left:0;
+    min-height: 100vh;
+    width: 100%;
+    background: rgba(0,0,0,.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
 }
 
-.card__price::after {
-  content: "₽";
-  margin-left: 4px;
-  position: relative;
+.products-preview .preview{
+    display: none;
+    padding:2rem;
+    text-align: center;
+    background: #fff;
+    position: relative;
+    margin:2rem;
+    width: 40rem;
 }
 
-.card__price--discount {
-  font-weight: 700;
-  font-size: 19px;
-  color: #414141;
-  display: flex;
-  flex-wrap: wrap-reverse;
+.products-preview .preview.active{
+    display: inline-block;
 }
 
-.card__price--discount::before {
-  content: "Со скидкой";
-  font-weight: 400;
-  font-size: 13px;
-  color: #bfbfbf;
+.products-preview .preview img{
+    height: 30rem;
 }
 
-.card__price--common {
-  font-weight: bold;
-  font-size: 27px;
-  color: #606060;
-  display: flex;
-  flex-wrap: wrap-reverse;
-  justify-content: flex-end;
+.products-preview .preview .fa-times{
+    position: absolute;
+    top:1rem; right:1.5rem;
+    cursor: pointer;
+    color: #444;
+    font-size: 4rem;
 }
 
-.card__price--common::before {
-  content: "От";
-  margin-right: 4px;
-  font-weight: bold;
-  font-size: 19px;
-  color: #bfbfbf;
+.products-preview .preview h3{
+    color: #444;
+    padding:.5rem 0;
+    font-size: 2.5rem;
 }
 
-.card__title {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: bold;
-  font-size: 20px;
-  line-height: 150%;
-  color: #414141;
+.products-preview .preview p{
+    line-height: 1.5;
+    padding:1rem 0;
+    font-size: 1.6rem;
+    color:#777;
 }
 
-.card__add {
-  display: block;
-  width: 100%;
-  font-weight: 400;
-  font-size: 17px;
-  color: #ff6633;
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ff6633;
-  border-radius: 4px;
-  cursor: pointer; /* Меняем курсор при наведении */
-  transition: 0.2s;
-  margin-top: auto; /* Прижимаем кнопку к низу карточки */
+.products-preview .preview .price{
+    padding:1rem 0;
+    font-size: 2.5rem;
 }
 
-.card__add:hover {
-  border: 1px solid #ff6633;
-  background-color: #ff6633;
-  color: #fff;
+.products-preview .preview .buttons{
+    display flex;
+    gap: 1.5rem;
+    flex-wrap:wrap;
+    margin-top:1rem;
 }
 
-body {
-  background-color: #9045E2;
+.products-preview .preview .buttons a{
+    flex:1 1 16rem;
+    padding:1rem;
+    font-size: 1.8rem;
+    color:#444;
+    border:.1rem solid #444;
+}
+
+.products-preview .preview .buttons a.cart{
+    background: #444;
+    color: #fff;
+}
+
+.products-preview .preview .buttons a.cart:hover{
+    background: #111;
+}
+
+@media (max-width:991px{
+    html{
+        font-size: 55%;
+    }
+}
+
+@media (max-width:768px{
+    .products-preview .preview img{
+        height: 25rem;
+    }
+}
+
+@media (max-width:450px{
+    html{
+        font-size: 50%;
+    }
 }

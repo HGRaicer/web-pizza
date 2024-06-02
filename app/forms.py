@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField, DecimalField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField, DecimalField, SelectField, SelectMultipleField
 from wtforms.validators import DataRequired, ValidationError, Optional
 import re
 from datetime import datetime, timedelta
@@ -74,3 +74,8 @@ class ProductForm(FlaskForm):
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
 # image = TextAreaField("Image", validators=[DataRequired()])
+
+
+class ExtraIngredientsForm(FlaskForm):
+    ingredients = SelectMultipleField("ингредиенты")
+    submit = SubmitField("Подтвердить")

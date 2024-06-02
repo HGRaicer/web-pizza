@@ -30,9 +30,11 @@ class Products(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     price: so.Mapped[int] = so.mapped_column()
-    ingridients: so.Mapped[str] = so.mapped_column(sa.String(150))
+    info: so.Mapped[str] = so.mapped_column(sa.String(150))
+    dop_ingredients: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
     size: so.Mapped[str] = so.mapped_column(sa.String(50))
     mass: so.Mapped[str] = so.mapped_column(sa.String(100))
+    image: so.Mapped[str] = so.mapped_column(sa.String(50))
 
 
 # Модель заказов для бд
@@ -46,6 +48,12 @@ class Order(db.Model):
     comment: so.Mapped[str] = so.mapped_column(sa.String(200))
 
     author: so.Mapped[User] = so.relationship(back_populates="posts")
+
+
+class Ingredient(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(100))
+    price: so.Mapped[int] = so.mapped_column()
 
 
 @login.user_loader
