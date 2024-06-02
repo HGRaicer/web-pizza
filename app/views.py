@@ -63,12 +63,61 @@ def logout():
     return redirect(url_for("menu"))
 
 
+def get_products_from_check(check):
+    products = []
+
+    for c in check.split('|'):
+        if ':' in c:
+            products.append(c.split(':')[0])
+
+    return products
+
+
+def get_recommended_products(user_id, default_product_ids):
+    last_orders = (
+        models.Order.query
+        .filter(models.Order.id_person == user_id)
+        .order_by(models.Order.time.desc())
+        .limit(4)
+        .all()
+    )
+
+    recommended_products_ids = []
+    for order in last_orders:
+        recommended_products_ids.extend(get_products_from_check(order.check))
+
+    recommended_products = []
+    for id in recommended_products_ids:
+        recommended_products.extend(models.Products.query.filter(models.Products.id==id).all())
+
+    recommended_products = list(set(recommended_products))
+
+    if len(recommended_products) < 4:
+        default_products = (
+            models.Products.query
+            .filter(models.Products.id.in_(default_product_ids))
+            .all()
+        )
+
+        additional_products = [item for item in default_products if item not in recommended_products]
+
+        recommended_products.extend(additional_products)
+    elif len(recommended_products) > 4:
+        recommended_products = recommended_products[:4]
+     
+    return recommended_products
+
+
 @app.route("/")
 def menu():
     # Получаем список всех продуктов
     products = models.Products.query.all()
+    # Получаем список рекомендуемых продуктов
+    default_products_ids = [1, 2, 3, 4]
+    recommended_products = get_recommended_products(current_user.id, default_products_ids)
     # Возвращаем шаблон главного меню с продуктами
-    return render_template("menu.html", products=products)
+
+    return render_template("menu.html", products=products, recommended_products=recommended_products)
 
 
 # Маршрут для добавления товара в корзину

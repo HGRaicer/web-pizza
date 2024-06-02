@@ -1,7 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
     <link rel="stylesheet" href="static/menu.css" type="text/css" />
-    <h1>Menu</h1>
+    <h1 style="text-align: center;">Recommendations</h1>
+    <hr>
+    <div class="cards">
+      {% for product in recommended_products %}
+          <div class="card">
+            <div class="card__top">
+              <a href="#" class="card__image">
+                <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="{{ product.name }}"/>
+              </a>
+            </div>
+
+            <div class="card__bottom">
+              <div class="card__prices">
+              <!--<div class="card__price card__price--discount">250</div> -->
+                <div class="card__price card__price--common"> {{ product.price}} </div>
+              </div>
+              <p class="card__title"> {{ product.name }}</p>
+              <form action="/add_to_cart" method="post">
+                  <input type="hidden" name="product_id" value="{{ product.id }}">
+                  <button class="card__add">Добавить в корзину</button>
+              </form>
+            </div>
+          </div>
+      {% endfor %}
+    </div>
+    <hr>
+    <h1 style="text-align: center;">Menu</h1>
     <hr>
     <div class="cards">
         {% for product in products %}
