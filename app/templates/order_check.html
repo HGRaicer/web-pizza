@@ -21,7 +21,8 @@
             {% for product in products_dir %}
             <tr>
                 <td>{{ product }}</td>
-                <td>{{ products_dir[product] }}</td>
+                <td>{{ products_dir[product][0] }}</td>
+                <td>{{ products_dir[product][1] }}</td>
             </tr>
             {% endfor %}
         </table>

@@ -16,12 +16,13 @@ class User(UserMixin, db.Model):
     role: so.Mapped[str] = so.mapped_column(sa.String(50), default="user")
     phone: so.Mapped[str] = so.mapped_column(sa.String(15), unique=True)
     password: so.Mapped[str] = so.mapped_column(sa.String(165))
-    pay_method: so.Mapped[str] = so.mapped_column(sa.String(10), default='', nullable=True)
+    pay_method: so.Mapped[str] = so.mapped_column(
+        sa.String(10), default="", nullable=True
+    )
 
     posts: so.WriteOnlyMapped["Order"] = so.relationship(
         back_populates="author", passive_deletes=True
     )
-
 
     def hash_password(self, password):
         self.password = generate_password_hash(password)  # мб str(password)?
@@ -37,7 +38,9 @@ class Products(db.Model):
     price: so.Mapped[int] = so.mapped_column()
     image_url: so.Mapped[str] = so.mapped_column(sa.String(250), nullable=True)
     info: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
-    dop_ingredients: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
+    dop_ingredients: so.Mapped[str] = so.mapped_column(
+        sa.String(150), nullable=True
+    )
     size: so.Mapped[str] = so.mapped_column(sa.String(50))
     mass: so.Mapped[str] = so.mapped_column(sa.String(100))
 
@@ -70,8 +73,6 @@ class Ingredient(db.Model):
     price: so.Mapped[int] = so.mapped_column()
 
 
-
 @login.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
-

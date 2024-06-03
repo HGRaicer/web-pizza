@@ -60,12 +60,10 @@ def get_products_dictionary_from_check(check):
 def get_products_ingredients_from_check(check):
     products = get_products_dictionary_from_check(check)
 
-    if ';' not in check :
+    if ";" not in check:
         return products
 
     parse = check.split("|")[-1]
-
-    del products[parse]
 
     for c in parse.split(";"):
         if ":" in c:
@@ -77,22 +75,26 @@ def get_products_ingredients_from_check(check):
             )
 
             ingredients = " "
-            if ',' in data[1]:
-                for i in data[1].split(','):
+            if "," in data[1]:
+                for i in data[1].split(","):
                     ingredient_name = (
-                        models.Ingredient.query.filter(models.Ingredient.id == i)
+                        models.Ingredient.query.filter(
+                            models.Ingredient.id == i
+                        )
                         .all()[0]
                         .name
-                    ) 
-                    ingredients += ingredient_name + " "  
+                    )
+                    ingredients += ingredient_name + " "
             else:
                 ingredient_name = (
-                        models.Ingredient.query.filter(models.Ingredient.id == data[1])
-                        .all()[0]
-                        .name
-                    ) 
+                    models.Ingredient.query.filter(
+                        models.Ingredient.id == data[1]
+                    )
+                    .all()[0]
+                    .name
+                )
                 ingredients = ingredient_name
-                        
+
             val = ["1", ingredients]
             products[product_name] = val
 
@@ -133,7 +135,6 @@ def get_recommended_products(user_id, default_product_ids):
         recommended_products = recommended_products[:4]
 
     return recommended_products
-
 
 
 @app.route("/registration", methods=["GET", "POST"])
@@ -207,7 +208,7 @@ def menu():
             products=products,
             recommended_products=default_products,
         )
-    
+
     recommended_products = get_recommended_products(
         current_user.id, default_products_ids
     )
@@ -218,7 +219,6 @@ def menu():
         products=products,
         recommended_products=recommended_products,
     )
-
 
 
 # Маршрут для добавления товара в корзину
@@ -245,8 +245,9 @@ def add_to_cart():
 @app.route("/cart")
 def cart():
     # Проверяем, есть ли в сессии корзина
-    if (("cart" not in session or len(session["cart"]) == 0) and
-            ("unusual_cart" not in session or len(session["unusual_cart"]) == 0)):
+    if ("cart" not in session or len(session["cart"]) == 0) and (
+        "unusual_cart" not in session or len(session["unusual_cart"]) == 0
+    ):
         is_empty = False
         return render_template("cart.html", is_empty=is_empty)
     # Получаем словарь идентификаторов товаров и их количеств в корзине
@@ -264,31 +265,30 @@ def cart():
         products_dict[product.id] = {"product": product, "quantity": quantity}
         total_cost += product.price * quantity
 
-    ans=[]
-    if 'unusual_cart' in session:
-        products_with_ingr = session['unusual_cart'][:-1].split(';')
+    ans = []
+    if "unusual_cart" in session:
+        products_with_ingr = session["unusual_cart"][:-1].split(";")
         for product in products_with_ingr:
-            product_id = int(product.split(':')[0])
+            product_id = int(product.split(":")[0])
 
-            ingredients_id = product.split(':')[1].split(',')
+            ingredients_id = product.split(":")[1].split(",")
             product = models.Products.query.get(product_id)
             name = product.name
             price = product.price
-            strr = f'{name} - {price} руб:'
+            strr = f"{name} - {price} руб:"
             for ingredient_id in ingredients_id:
                 ingredient = models.Ingredient.query.get(ingredient_id)
                 name = ingredient.name
                 price_ing = ingredient.price
-                strr += f' {name} - {price_ing} руб,'
+                strr += f" {name} - {price_ing} руб,"
                 price += price_ing
             ans.append(strr[:-1])
             total_cost += price
 
     # Возвращаем шаблон корзины с товарами и их количеством
     return render_template(
-        "cart.html", products=products_dict,
-        total_cost=total_cost, ans=ans)
-
+        "cart.html", products=products_dict, total_cost=total_cost, ans=ans
+    )
 
 
 # Маршрут для удаления товара из корзины
@@ -348,24 +348,37 @@ def pay_cart():
         if form.validate_on_submit():
             # Получаем словарь идентификаторов товаров и их количеств в корзине
             cart_items = session.get("cart", {})
-            products = ''
+            products = ""
             total_cost = 0
             # формируем строчку для чека вида id продукта:количество| и подсчитываем общую сумму
             for id_product, quantity in cart_items.items():
-                products = products + f'{id_product}:{quantity}|'
-                total_cost += models.Products.query.get(id_product).price * quantity
+                products = products + f"{id_product}:{quantity}|"
+                total_cost += (
+                    models.Products.query.get(id_product).price * quantity
+                )
             # формируем чек
-            dop_ingredients = session.get("unusual_cart", '')
-            if dop_ingredients != '':
-                for dop_prods in dop_ingredients[:-1].split(';'):
-                    prod_id, ings_id = dop_prods.split(':')[0], dop_prods.split(':')[1]
-                    if ',' in ings_id:
-                        for ing_id in ings_id.split(','):
-                            if ing_id != '':
-                                total_cost += models.Ingredient.query.get_or_404(ing_id).price
+            dop_ingredients = session.get("unusual_cart", "")
+            if dop_ingredients != "":
+                for dop_prods in dop_ingredients[:-1].split(";"):
+                    prod_id, ings_id = (
+                        dop_prods.split(":")[0],
+                        dop_prods.split(":")[1],
+                    )
+                    if "," in ings_id:
+                        for ing_id in ings_id.split(","):
+                            if ing_id != "":
+                                total_cost += (
+                                    models.Ingredient.query.get_or_404(
+                                        ing_id
+                                    ).price
+                                )
                     else:
-                        total_cost += models.Ingredient.query.get_or_404(ings_id).price
-                    prod_price = models.Products.query.get_or_404(prod_id).price
+                        total_cost += models.Ingredient.query.get_or_404(
+                            ings_id
+                        ).price
+                    prod_price = models.Products.query.get_or_404(
+                        prod_id
+                    ).price
                     total_cost += prod_price
 
             check = f"{total_cost}|" + products + dop_ingredients
@@ -375,14 +388,14 @@ def pay_cart():
 
             list_address = [form.address.data]
             if form.entrance.data:
-                list_address.append('под.' + form.entrance.data)
+                list_address.append("под." + form.entrance.data)
             if form.door_code.data:
-                list_address.append('д.' + form.door_code.data)
+                list_address.append("д." + form.door_code.data)
             if form.floor.data:
-                list_address.append('эт.' + form.floor.data)
+                list_address.append("эт." + form.floor.data)
             if form.apartment.data:
-                list_address.append('кв.' + form.apartment.data)
-            address = ','.join(list_address)
+                list_address.append("кв." + form.apartment.data)
+            address = ",".join(list_address)
 
             # Сохраняем информацию о заказе
             order = models.Order(
@@ -391,7 +404,7 @@ def pay_cart():
                 status="Принято",
                 comment=form.comment.data,
                 check=check,
-                time=time
+                time=time,
             )
             # Очищаем корзину
             session["cart"].clear()
@@ -401,20 +414,22 @@ def pay_cart():
             db.session.commit()
             session["order"] = order.id_order
             return redirect(url_for("order_tracking"))
-        return render_template("pay_cart.html", form=form, title="Pay_cart", user=user)
+        return render_template(
+            "pay_cart.html", form=form, title="Pay_cart", user=user
+        )
     else:
         return redirect(url_for("login"))
 
-@app.route('/get_delivery_times', methods=['POST'])
+
+@app.route("/get_delivery_times", methods=["POST"])
 def get_delivery_times():
-    time = request.form['time']
+    time = request.form["time"]
     count_order = models.Order.count_time(time)
     if count_order < 10:
-        return jsonify({'delivery_time': 'Низкая нагруженность'})
+        return jsonify({"delivery_time": "Низкая нагруженность"})
     if count_order < 50:
-        return jsonify({'delivery_time': 'Средняя нагруженность'})
-    return jsonify({'delivery_time': 'Высокая нагруженность'})
-
+        return jsonify({"delivery_time": "Средняя нагруженность"})
+    return jsonify({"delivery_time": "Высокая нагруженность"})
 
 
 @app.route("/order_tracking", methods=["GET"])
@@ -449,7 +464,6 @@ def admin_required(func):
         return func(*args, **kwargs)
 
     return decorated_view
-
 
 
 @app.route("/admin")
@@ -548,7 +562,6 @@ def update_order_status(order_id, new_status):
     order.status = new_status
     db.session.commit()
 
-
     return redirect(url_for("admin_orders"))
 
 
@@ -596,7 +609,6 @@ def delete_product(product_id):
     db.session.delete(product)
     db.session.commit()
 
-
     return redirect(url_for("admin_products"))
 
 
@@ -625,7 +637,6 @@ def edit_profile():
     return render_template("edit_profile.html", form=form)
 
 
-
 @app.route("/profile/orders/<int:order_id>/check", methods=["GET"])
 @login_required
 def profile_get_check(order_id):
@@ -642,28 +653,30 @@ def profile_get_check(order_id):
 @app.route("/way_to_product", methods=["POST"])
 def way_to_product():
     product_id = request.form["product_id"]
-    session['product_id'] = product_id
-    return redirect(url_for('add_ingredients'))
+    session["product_id"] = product_id
+    return redirect(url_for("add_ingredients"))
 
 
 @app.route("/add_ingredients", methods=["GET", "POST"])
 def add_ingredients():
     form = ExtraIngredientsForm()
-    product_id = session.get('product_id')
+    product_id = session.get("product_id")
     ingredients = models.Products.query.get(product_id).dop_ingredients
     choices = []
-    for ingredient_id in ingredients.split(';'):
+    for ingredient_id in ingredients.split(";"):
         ingredient = models.Ingredient.query.get(ingredient_id)
         name = ingredient.name
         price = ingredient.price
-        choices.append((ingredient_id, f'{name} цена: {price} рублей'))
+        choices.append((ingredient_id, f"{name} цена: {price} рублей"))
     form.ingredients.choices = choices
     if form.is_submitted():
         if "unusual_cart" not in session:
-            session["unusual_cart"] = ''
-        session["unusual_cart"] += f'{product_id}:{",".join(form.ingredients.data)};'
-        return redirect(url_for('menu'))
-    return render_template('add_ingredients.html', form=form)
+            session["unusual_cart"] = ""
+        session[
+            "unusual_cart"
+        ] += f'{product_id}:{",".join(form.ingredients.data)};'
+        return redirect(url_for("menu"))
+    return render_template("add_ingredients.html", form=form)
 
 
 @app.route("/admin/ingredients")
@@ -682,8 +695,7 @@ def admin_add_ingredient():
     form = IngredientForm()
     if form.validate_on_submit():
         new_ingredient = models.Ingredient(
-            name=form.name.data,
-            price=form.price.data
+            name=form.name.data, price=form.price.data
         )
 
         db.session.add(new_ingredient)
@@ -692,7 +704,9 @@ def admin_add_ingredient():
     return render_template("admin_add_ingredients.html", form=form)
 
 
-@app.route("/admin/ingredients/edit/<int:ingredient_id>", methods=["GET", "POST"])
+@app.route(
+    "/admin/ingredients/edit/<int:ingredient_id>", methods=["GET", "POST"]
+)
 @login_required
 @admin_required
 def admin_edit_ingredient(ingredient_id):
@@ -708,7 +722,9 @@ def admin_edit_ingredient(ingredient_id):
     )
 
 
-@app.route("/admin/ingredients/delete/<int:ingredient_id>", methods=["GET", "POST"])
+@app.route(
+    "/admin/ingredients/delete/<int:ingredient_id>", methods=["GET", "POST"]
+)
 @login_required
 @admin_required
 def delete_ingredient(ingredient_id):
