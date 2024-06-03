@@ -7,7 +7,7 @@
             <div class="products-container">
                 {% for product in recommended_products %}
                     <div class="product" data-name="{{ product.name }}">
-                        {% if product.filename is not None %}
+                        {% if product.image_url is not None %}
                             <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
                         {% endif %}
                         <h3> {{ product.name }}</h3>
@@ -24,7 +24,7 @@
             <div class="products-container">
                 {% for product in products %}
                     <div class="product" data-name="{{ product.name }}">
-                        {% if product.filename is not None %}
+                        {% if product.image_url is not None %}
                             <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
                         {% endif %}
                         <h3> {{ product.name }}</h3>
