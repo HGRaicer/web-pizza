@@ -15,7 +15,7 @@ This project is a collaborative effort by four students from Moscow Aviation Ins
 - *Flask*: Python web framework for building the application.
 - *PostgreSQL*: Database management system for storing application data.
 - *HTML/CSS/JavaScript*: Frontend development for the user interface.
-- *Third-Party Libraries*: SQLAlchemy
+- *Third-Party Libraries*: SQLAlchemy, functools, urllib.parse, flask_login.
 
 ## Testing Strategy
 To ensure the reliability and functionality of the application, we will implement a comprehensive testing strategy.
