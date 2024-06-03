@@ -1,0 +1,29 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    Admin Products
+{% endblock %}
+
+{% block content %}
+    <div style="margin-bottom: 20px; margin-left: 10%;">
+        <h1>Сумма заказа: {{ check_price }} Руб.</h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <table class="table table-sm" style="width: 80%" border="1" id="ordertable">
+            <thead class="thead-dark">
+                <tr>
+                    <th onclick="sortTable(0)">Product</th>
+                    <th onclick="sortTable(1)">Quantiny</th>
+                    <th onclick="sortTable(2)">Ingridients</th>
+                </tr>
+            </thead>
+            {% for product in products_dir %}
+            <tr>
+                <td>{{ product }}</td>
+                <td>{{ products_dir[product] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

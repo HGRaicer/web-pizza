@@ -5,44 +5,57 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Edit Product</h2>
-    <form method="POST" action="{{ url_for('edit_product', product_id=product_id) }}">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.name.label }}
-            {{ form.name(class="form-control") }}
-            {% for error in form.name.errors %}
-                <span>{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            {{ form.price.label }}
-            {{ form.price(class="form-control") }}
-            {% for error in form.price.errors %}
-                <span>{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            {{ form.ingridients.label }}
-            {{ form.ingridients(class="form-control") }}
-            {% for error in form.ingridients.errors %}
-                <span>{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            {{ form.size.label }}
-            {{ form.size(class="form-control") }}
-            {% for error in form.size.errors %}
-                <span >{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            {{ form.mass.label }}
-            {{ form.mass(class="form-control") }}
-            {% for error in form.mass.errors %}
-                <span>{{ error }}</span>
-            {% endfor %}
-        </div>
-        <button type="submit">Update</button>
-    </form>
+
+    <div class="d-flex justify-content-center">
+        <h2>Edit Product</h2>
+    </div>
+    <div style="margin-left: 10%; margin-right: 10%;">
+        <form method="POST" action="{{ url_for('edit_product', product_id=product_id) }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group justify-content-center">
+                {{ form.name.label }}
+                {{ form.name(class="form-control") }}
+                {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group justify-content-center">
+                {{ form.price.label }}
+                {{ form.price(class="form-control") }}
+                {% for error in form.price.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group justify-content-center">
+                {{ form.ingridients.label }}
+                {{ form.ingridients(class="form-control") }}
+                {% for error in form.ingridients.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group justify-content-center">
+                {{ form.size.label }}
+                {{ form.size(class="form-control") }}
+                {% for error in form.size.errors %}
+                    <span >{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group justify-content-center">
+                {{ form.mass.label }}
+                {{ form.mass(class="form-control") }}
+                {% for error in form.mass.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group justify-content-center">
+                {{ form.image_url.label }}<br>
+                {{ form.image_url(class="form-control") }}
+                {% for error in form.image_url.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button class="btn btn-success justify-content-center" type="submit">Update</button>
+        </form>
+    </div>
+
 {% endblock %}
