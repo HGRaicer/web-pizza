@@ -8,7 +8,6 @@ from wtforms import (
     BooleanField,
     SubmitField,
     TextAreaField,
-    TimeField,
     DecimalField,
     SelectMultipleField,
     RadioField,
@@ -29,10 +28,14 @@ def get_time_choices(start_hour=0, start_minute=0, end_hour=23, end_minute=59):
     end = datetime(now.year, now.month, now.day, end_hour, end_minute)
     intervals = []
     while start < end:
-        str_interval = " - ".join([start.strftime("%H:%M"), (start + timedelta(minutes=30)).strftime("%H:%M")])
-        interval = ((start.strftime('%H:%M')),
-                    str_interval)
-        if interval[0] > (now + timedelta(minutes=30)).strftime('%H:%M'):
+        str_interval = " - ".join(
+            [
+                start.strftime("%H:%M"),
+                (start + timedelta(minutes=30)).strftime("%H:%M"),
+            ]
+        )
+        interval = ((start.strftime("%H:%M")), str_interval)
+        if interval[0] > (now + timedelta(minutes=30)).strftime("%H:%M"):
             intervals.append(interval)
         start = start + timedelta(minutes=30)
     return intervals
@@ -89,7 +92,10 @@ class LoginForm(FlaskForm):
 
 
 class PayCartForm(FlaskForm):
-    payment_method = RadioField("Способ оплаты", choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")])
+    payment_method = RadioField(
+        "Способ оплаты",
+        choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")],
+    )
     address = StringField("Адрес доставки", validators=[DataRequired()])
     entrance = StringField("Подъезд", validators=[Optional()])
     door_code = StringField("Код двери", validators=[Optional()])
@@ -99,12 +105,14 @@ class PayCartForm(FlaskForm):
     comment = TextAreaField("Комментарий", validators=[Optional()])
     submit = SubmitField("Подтвердить")
 
-    
+
 class ProductForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     price = DecimalField("Price", validators=[DataRequired()])
     info = TextAreaField("Info", validators=[DataRequired()])
-    dop_ingredients = TextAreaField("DopIngridients", validators=[DataRequired()])
+    dop_ingredients = TextAreaField(
+        "DopIngridients", validators=[DataRequired()]
+    )
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
     image_url = TextAreaField("Image", validators=[DataRequired()])
@@ -146,7 +154,7 @@ class EditForm(FlaskForm):
         )
         if user is not None and user.id != current_user.id:
             raise ValidationError("Please use a different email address.")
-            
+
 
 class ExtraIngredientsForm(FlaskForm):
     ingredients = SelectMultipleField("ингредиенты")
