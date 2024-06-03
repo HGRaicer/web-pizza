@@ -157,11 +157,12 @@ def menu():
         default_products = models.Products.query.filter(
             models.Products.id.in_(default_products_ids)
         ).all()
+
         return render_template(
-        "menu.html",
-        products=products,
-        recommended_products=default_products,
-    )
+            "menu.html",
+            products=products,
+            recommended_products=default_products,
+        )
     
     recommended_products = get_recommended_products(
         current_user.id, default_products_ids
@@ -200,7 +201,8 @@ def add_to_cart():
 @app.route("/cart")
 def cart():
     # Проверяем, есть ли в сессии корзина
-    if "cart" not in session or len(session["cart"]) == 0:
+    if (("cart" not in session or len(session["cart"]) == 0) and
+            ("unusual_cart" not in session or len(session["unusual_cart"]) == 0)):
         is_empty = False
         return render_template("cart.html", is_empty=is_empty)
     # Получаем словарь идентификаторов товаров и их количеств в корзине
@@ -229,12 +231,12 @@ def cart():
             product = models.Products.query.get(product_id)
             name = product.name
             price = product.price
-            strr = f'{name} цена - {price} рублей:'
+            strr = f'{name} - {price} руб:'
             for ingredient_id in ingredients_id:
                 ingredient = models.Ingredient.query.get(ingredient_id)
                 name = ingredient.name
                 price_ing = ingredient.price
-                strr += f' {name} цена - {price_ing} рублей,'
+                strr += f' {name} - {price_ing} руб,'
                 price += price_ing
             ans.append(strr[:-1])
             total_cost += price
@@ -310,7 +312,22 @@ def pay_cart():
                 products = products + f'{id_product}:{quantity}|'
                 total_cost += models.Products.query.get(id_product).price * quantity
             # формируем чек
-            check = f"{total_cost}|" + products
+            dop_ingredients = session.get("unusual_cart", '')
+            print(dop_ingredients)
+            if dop_ingredients != '':
+                for dop_prods in dop_ingredients[:-1].split(';'):
+                    print(dop_prods)
+                    prod_id, ings_id = dop_prods.split(':')[0], dop_prods.split(':')[1]
+                    if ',' in ings_id:
+                        for ing_id in ings_id.split(','):
+                            if ing_id != '':
+                                total_cost += models.Ingredient.query.get_or_404(ing_id).price
+                    else:
+                        total_cost += models.Ingredient.query.get_or_404(ings_id).price
+                    prod_price = models.Products.query.get_or_404(prod_id).price
+                    total_cost += prod_price
+
+            check = f"{total_cost}|" + products + dop_ingredients
             # Получение текущего времени заказа
             now = datetime.now()
             time = " ".join([now.strftime("%Y-%m-%d"), form.time.data])
@@ -337,6 +354,8 @@ def pay_cart():
             )
             # Очищаем корзину
             session["cart"].clear()
+            if "unusual_cart" in session:
+                del session["unusual_cart"]
             db.session.add(order)
             db.session.commit()
             session["order"] = order.id_order
@@ -575,16 +594,6 @@ def profile_get_check(order_id):
         check_price=order.check.split("|")[0],
         products_dir=products_dir,
     )
-
-    return redirect(url_for('admin_products'))
-
-
-@login_required
-@app.route("/profile", methods=["GET", "POST"])
-def profile():
-    if current_user.is_authenticated:
-        orders = models.Order.query.filter(models.Order.id_person == current_user.id).all()
-        return render_template("profile.html", title="Your profile", orders=orders)
 
 
 @app.route("/way_to_product", methods=["POST"])

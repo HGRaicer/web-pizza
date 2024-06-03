@@ -35,8 +35,11 @@
         {% for product_id, product_info in products.items() %}
             {% set products_string = products_string + product_id|string + ':' + product_info.quantity|string + '|' %}
         {% endfor %}
+        {% for dop_prod in ans %}
+            {% set products_string = products_string + ';' + dop_prod|string %}
+        {% endfor %}
         <form action="/pay_cart" method="get">
-                <input type="hidden" name="products" value="{{ products_string[:-1] }}">
+                <input type="hidden" name="products" value="{{ products_string }}">
                 <input type="hidden" name="total_cost" value="{{ total_cost }}">
                 <input type="submit" value="Заказать">
         </form>

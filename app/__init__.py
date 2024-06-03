@@ -13,7 +13,7 @@ app.config["SECRET_KEY"] = (
 )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "postgresql://postgres:1234@localhost:5432/web_pizza_db"
+    "postgresql://postgres:1234@localhost:5432/Web_pizza_DB"
 )
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -23,7 +23,6 @@ migrate = Migrate(app, db)
 
 login = LoginManager(app)
 login.login_view = "login"
-=======
 
 
 app = Flask(__name__)

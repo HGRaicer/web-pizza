@@ -36,7 +36,7 @@ class Products(db.Model):
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     price: so.Mapped[int] = so.mapped_column()
     image_url: so.Mapped[str] = so.mapped_column(sa.String(250), nullable=True)
-    info: so.Mapped[str] = so.mapped_column(sa.String(150))
+    info: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
     dop_ingredients: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
     size: so.Mapped[str] = so.mapped_column(sa.String(50))
     mass: so.Mapped[str] = so.mapped_column(sa.String(100))
