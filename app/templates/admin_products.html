@@ -17,10 +17,11 @@
                     <th onclick="sortTable(0)">ID</th>
                     <th onclick="sortTable(1)">Name</th>
                     <th onclick="sortTable(2)">Price</th>
-                    <th onclick="sortTable(3)">Ingridients</th>
-                    <th onclick="sortTable(4)">Size</th>
-                    <th onclick="sortTable(5)">Mass</th>
-                    <th onclick="sortTable(6)">Image</th>
+                    <th onclick="sortTable(3)">Info</th>
+                    <th onclick="sortTable(4)">Dop Ingredients</th>
+                    <th onclick="sortTable(5)">Size</th>
+                    <th onclick="sortTable(6)">Mass</th>
+                    <th onclick="sortTable(7)">Image</th>
                 </tr>
             </thead>
             {% for product in products %}
@@ -28,7 +29,8 @@
                 <td>{{ product.id }}</td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.price }}</td>
-                <td>{{ product.ingridients }}</td>
+                <td>{{ product.info }}</td>
+                <td>{{ product.dop_ingredients }}</td>
                 <td>{{ product.size }}</td>
                 <td>{{ product.mass }}</td>
                 <td>{{ product.image_url }}</td>

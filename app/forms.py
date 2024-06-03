@@ -103,7 +103,8 @@ class PayCartForm(FlaskForm):
 class ProductForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     price = DecimalField("Price", validators=[DataRequired()])
-    ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
+    info = TextAreaField("Info", validators=[DataRequired()])
+    dop_ingredients = TextAreaField("DopIngridients", validators=[DataRequired()])
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
     image_url = TextAreaField("Image", validators=[DataRequired()])

@@ -468,7 +468,8 @@ def add_product():
         new_product = models.Products(
             name=form.name.data,
             price=form.price.data,
-            ingridients=form.ingridients.data,
+            dop_ingredients=form.dop_ingredients.data,
+            info=form.info.data,
             size=form.size.data,
             mass=form.mass.data,
             image_url=form.image_url.data,
