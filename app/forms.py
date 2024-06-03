@@ -2,9 +2,21 @@ import re
 from datetime import datetime, timedelta
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DecimalField, RadioField, SelectMultipleField, TimeField
+from wtforms import (
+    StringField,
+    PasswordField,
+    BooleanField,
+    SubmitField,
+    TextAreaField,
+    TimeField,
+    DecimalField,
+    SelectMultipleField,
+    RadioField,
+    SelectField,
+)
 from wtforms.validators import DataRequired, ValidationError, Optional
 import sqlalchemy as sa
+
 
 from app import db
 from app.models import User
@@ -25,7 +37,6 @@ def get_time_choices(start_hour=0, start_minute=0, end_hour=23, end_minute=59):
     return intervals
 
 
-
 class RegistrationForm(FlaskForm):
     email = StringField("email", validators=[DataRequired()])
     password = PasswordField("password", validators=[DataRequired()])
@@ -37,26 +48,34 @@ class RegistrationForm(FlaskForm):
     def validate_password(self, field):
         # Проверка на все параметры (длина, спец символы и тп)
         if not re.match(
-                r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
-                field.data, ):
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
+            field.data,
+        ):
             raise ValidationError("Unvalid password")
 
     def validate_phone(self, field):
         # Проверка на все параметры телефона
         if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
             raise ValidationError("Unvailde phone")
-        user = db.session.scalar(sa.select(User).where(User.phone == field.data))
+
+        user = db.session.scalar(
+            sa.select(User).where(User.phone == field.data)
+        )
+
         if user is not None:
             raise ValidationError("Please use a different phone number.")
 
     def validate_email(self, field):
         # Проверяем, соответствует ли адрес электронной почты требованиям
         if not re.match(
-                r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
+            r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
         ):
             raise ValidationError("Unvailde email")
         # Проверка на наличие пользователя в бд
-        user = db.session.scalar(sa.select(User).where(User.email == field.data))
+        user = db.session.scalar(
+            sa.select(User).where(User.email == field.data)
+        )
+
         if user is not None:
             raise ValidationError("Please use a different email address.")
 
@@ -79,16 +98,55 @@ class PayCartForm(FlaskForm):
     comment = TextAreaField("Комментарий", validators=[Optional()])
     submit = SubmitField("Подтвердить")
 
-
+    
 class ProductForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    price = DecimalField('Price', validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    price = DecimalField("Price", validators=[DataRequired()])
     ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
-# image = TextAreaField("Image", validators=[DataRequired()])
+    image_url = TextAreaField("Image", validators=[DataRequired()])
 
+
+class EditForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    phone = StringField("Телефон", validators=[DataRequired()])
+    name = StringField("Имя", validators=[DataRequired()])
+
+    def validate_password(self, field):
+        # Проверка на все параметры (длина, спец символы и тп)
+        if not re.match(
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
+            field.data,
+        ):
+            raise ValidationError("Unvalid password")
+
+    def validate_phone(self, field):
+        # Проверка на все параметры телефона
+        if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
+            raise ValidationError("Unvailde phone")
+        user = db.session.scalar(
+            sa.select(User).where(User.phone == field.data)
+        )
+        if user is not None:
+            raise ValidationError("Please use a different phone number.")
+
+    def validate_email(self, field):
+        # Проверяем, соответствует ли адрес электронной почты требованиям
+        if not re.match(
+            r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
+        ):
+            raise ValidationError("Unvalid email")
+        # Проверка на наличие пользователя в бд
+        user = db.session.scalar(
+            sa.select(User).where(User.email == field.data)
+        )
+        if user is not None:
+            raise ValidationError("Please use a different email address.")
+            
 
 class ExtraIngredientsForm(FlaskForm):
     ingredients = SelectMultipleField("ингредиенты")
     submit = SubmitField("Подтвердить")
+

@@ -2,17 +2,93 @@ from datetime import datetime, date
 from functools import wraps
 from urllib.parse import urlsplit
 
-from flask import request, render_template, flash, redirect, url_for, session, jsonify
+
+from flask import (
+    request,
+    render_template,
+    flash,
+    redirect,
+    url_for,
+    session,
+    jsonify,
+)
 import sqlalchemy as sa
 from flask_login import logout_user, current_user, login_user, login_required
 
-
 from app import app, models
 from app import db
+from app.forms import (
+    RegistrationForm,
+    LoginForm,
+    PayCartForm,
+    ProductForm,
+    EditForm,
+    ExtraIngredientsForm,
+    get_time_choices,
+)
 
-from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm, ExtraIngredientsForm
-from app.forms import get_time_choices
 
+
+def get_products_from_check(check):
+    products = []
+
+    for c in check.split("|"):
+        if ":" in c:
+            products.append(c.split(":")[0])
+
+    return products
+
+
+def get_products_dictionary_from_check(check):
+    products = {}
+
+    for c in check.split("|"):
+        if ":" in c:
+            data = c.split(":")
+            product_name = (
+                models.Products.query.filter(models.Products.id == data[0])
+                .all()[0]
+                .name
+            )
+            products[product_name] = data[1]
+
+    return products
+
+
+def get_recommended_products(user_id, default_product_ids):
+    last_orders = models.Order.query.filter(
+        models.Order.id_person == user_id
+    ).all()
+    last_orders = reversed(last_orders[-4:])
+
+    recommended_products_ids = []
+    for order in last_orders:
+        recommended_products_ids.extend(get_products_from_check(order.check))
+
+    recommended_products = []
+    for id in recommended_products_ids:
+        recommended_products.extend(
+            models.Products.query.filter(models.Products.id == id).all()
+        )
+
+    recommended_products = list(set(recommended_products))
+
+    if len(recommended_products) < 4:
+        default_products = models.Products.query.filter(
+            models.Products.id.in_(default_product_ids)
+        ).all()
+
+        additional_products = [
+            item
+            for item in default_products
+            if item not in recommended_products
+        ]
+
+        recommended_products.extend(additional_products)
+    elif len(recommended_products) > 4:
+        recommended_products = recommended_products[:4]
+
+    return recommended_products
 
 
 
@@ -28,7 +104,6 @@ def registration():
         user.email = form.email.data
         user.name = form.name.data
         user.hash_password(form.password.data)
-        user.last5_order = ''
         db.session.add(user)
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
@@ -56,9 +131,10 @@ def login():
             return redirect(url_for("login"))
         # Авторизуем пользователя
         login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('menu')
+        next_page = request.args.get("next")
+        if not next_page or urlsplit(next_page).netloc != "":
+            next_page = url_for("menu")
+
         return redirect(next_page)
     # Возвращаем шаблон страницы входа с формой
     return render_template("login.html", title="Sign In", form=form)
@@ -74,8 +150,30 @@ def logout():
 def menu():
     # Получаем список всех продуктов
     products = models.Products.query.all()
+    # Получаем список рекомендуемых продуктов
+    default_products_ids = [1, 2, 3, 4]
+
+    if not current_user.is_authenticated:
+        default_products = models.Products.query.filter(
+            models.Products.id.in_(default_products_ids)
+        ).all()
+        return render_template(
+        "menu.html",
+        products=products,
+        recommended_products=default_products,
+    )
+    
+    recommended_products = get_recommended_products(
+        current_user.id, default_products_ids
+    )
     # Возвращаем шаблон главного меню с продуктами
-    return render_template("menu.html", products=products)
+
+    return render_template(
+        "menu.html",
+        products=products,
+        recommended_products=recommended_products,
+    )
+
 
 
 # Маршрут для добавления товара в корзину
@@ -83,8 +181,6 @@ def menu():
 def add_to_cart():
     # Получаем идентификатор товара из формы
     product_id = request.form["product_id"]
-    # Получаем товар по идентификатору
-    product = models.Products.query.get(product_id)
     # Если корзина еще не создана, создаем ее
     if "cart" not in session:
         session["cart"] = {}
@@ -103,7 +199,6 @@ def add_to_cart():
 # Маршрут для просмотра корзины
 @app.route("/cart")
 def cart():
-    is_empty = True
     # Проверяем, есть ли в сессии корзина
     if "cart" not in session or len(session["cart"]) == 0:
         is_empty = False
@@ -145,7 +240,10 @@ def cart():
             total_cost += price
 
     # Возвращаем шаблон корзины с товарами и их количеством
-    return render_template("cart.html", products=products_dict, total_cost=total_cost, ans=ans)
+    return render_template(
+        "cart.html", products=products_dict,
+        total_cost=total_cost, ans=ans)
+
 
 
 # Маршрут для удаления товара из корзины
@@ -228,7 +326,6 @@ def pay_cart():
                 list_address.append('кв.' + form.apartment.data)
             address = ','.join(list_address)
 
-
             # Сохраняем информацию о заказе
             order = models.Order(
                 id_person=current_user.id,
@@ -260,8 +357,6 @@ def get_delivery_times():
 
 
 
-
-
 @app.route("/order_tracking", methods=["GET"])
 def order_tracking():
     id_order = session.get("order")
@@ -285,30 +380,37 @@ def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('login'), )
-        if current_user.role != 'admin':
-            return redirect(url_for('menu'))
+            return redirect(
+                url_for("login"),
+            )
+        if current_user.role != "admin":
+            return redirect(url_for("menu"))
+
         return func(*args, **kwargs)
 
     return decorated_view
 
 
-@app.route('/admin')
+
+@app.route("/admin")
 @login_required
 @admin_required
 def admin():
-    return redirect(url_for('admin_users'))
+    return redirect(url_for("admin_users"))
 
 
-@app.route('/admin/users')
+@app.route("/admin/users")
 @login_required
 @admin_required
 def admin_users():
     users = models.User.query.all()
-    return render_template('admin_users.html', users=users)
+
+    return render_template("admin_users.html", users=users)
 
 
-@app.route('/admin/users/change_role/<int:user_id>/<new_role>', methods=['GET'])
+@app.route(
+    "/admin/users/change_role/<int:user_id>/<new_role>", methods=["GET"]
+)
 @login_required
 @admin_required
 def change_user_role(user_id, new_role):
@@ -316,42 +418,50 @@ def change_user_role(user_id, new_role):
     user.role = new_role
     db.session.commit()
 
-    return redirect(url_for('admin_users'))
+    return redirect(url_for("admin_users"))
 
 
-@app.route('/admin/products')
+@app.route("/admin/products")
 @login_required
 @admin_required
 def admin_products():
     products = models.Products.query.all()
-    return render_template('admin_products.html', products=products)
+
+    return render_template("admin_products.html", products=products)
 
 
-@app.route('/admin/orders')
+@app.route("/admin/orders")
 @login_required
 @admin_required
 def admin_orders():
     orders = models.Order.query.all()
-    return render_template('admin_orders.html', orders=orders)
+
+    return render_template("admin_orders.html", orders=orders)
 
 
-@app.route('/admin/products/add', methods=['GET', 'POST'])
+@app.route("/admin/products/add", methods=["GET", "POST"])
 @login_required
 @admin_required
 def add_product():
     form = ProductForm()
     if form.validate_on_submit():
-        new_product = models.Products(name=form.name.data, price=form.price.data,
-                                      ingridients=form.ingridients.data, size=form.size.data,
-                                      mass=form.mass.data)
+
+        new_product = models.Products(
+            name=form.name.data,
+            price=form.price.data,
+            ingridients=form.ingridients.data,
+            size=form.size.data,
+            mass=form.mass.data,
+            image_url=form.image_url.data,
+        )
 
         db.session.add(new_product)
         db.session.commit()
-        return redirect(url_for('admin_products'))
-    return render_template('add_product.html', form=form)
+        return redirect(url_for("admin_products"))
+    return render_template("add_product.html", form=form)
 
 
-@app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
+@app.route("/admin/products/edit/<int:product_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
 def edit_product(product_id):
@@ -360,11 +470,16 @@ def edit_product(product_id):
     if form.validate_on_submit():
         form.populate_obj(product)
         db.session.commit()
-        return redirect(url_for('admin_products'))
-    return render_template('edit_product.html', form=form, product_id=product_id)
+
+        return redirect(url_for("admin_products"))
+    return render_template(
+        "edit_product.html", form=form, product_id=product_id
+    )
 
 
-@app.route('/admin/orders/update_status/<int:order_id>/<new_status>', methods=['GET'])
+@app.route(
+    "/admin/orders/update_status/<int:order_id>/<new_status>", methods=["GET"]
+)
 @login_required
 @admin_required
 def update_order_status(order_id, new_status):
@@ -372,10 +487,25 @@ def update_order_status(order_id, new_status):
     order.status = new_status
     db.session.commit()
 
-    return redirect(url_for('admin_orders'))
+
+    return redirect(url_for("admin_orders"))
 
 
-@app.route('/admin/users/delete/<int:user_id>', methods=['GET', 'POST'])
+@app.route("/admin/orders/<int:order_id>/check", methods=["GET"])
+@login_required
+@admin_required
+def order_get_check(order_id):
+    order = models.Order.query.get_or_404(order_id)
+    products_dir = get_products_dictionary_from_check(order.check)
+
+    return render_template(
+        "order_check.html",
+        check_price=order.check.split("|")[0],
+        products_dir=products_dir,
+    )
+
+
+@app.route("/admin/users/delete/<int:user_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
 def delete_user(user_id):
@@ -383,10 +513,10 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
 
-    return redirect(url_for('admin_users'))
+    return redirect(url_for("admin_users"))
 
 
-@app.route('/admin/orders/delete/<int:order_id>', methods=['GET', 'POST'])
+@app.route("/admin/orders/delete/<int:order_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
 def delete_order(order_id):
@@ -394,16 +524,57 @@ def delete_order(order_id):
     db.session.delete(order)
     db.session.commit()
 
-    return redirect(url_for('admin_orders'))
+    return redirect(url_for("admin_orders"))
 
 
-@app.route('/admin/products/delete/<int:product_id>', methods=['GET', 'POST'])
+@app.route("/admin/products/delete/<int:product_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
 def delete_product(product_id):
     product = models.Products.query.get_or_404(product_id)
     db.session.delete(product)
     db.session.commit()
+
+
+    return redirect(url_for("admin_products"))
+
+
+@login_required
+@app.route("/profile", methods=["GET"])
+def profile():
+    if current_user.is_authenticated:
+        orders = models.Order.query.filter(
+            models.Order.id_person == current_user.id
+        ).all()
+        orders = reversed(orders[-8:])
+        return render_template(
+            "profile.html", title="Ваш профиль", orders=orders
+        )
+
+
+@app.route("/profile/edit", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    user = models.User.query.get_or_404(current_user.id)
+    form = EditForm(obj=user)
+    if form.validate_on_submit():
+        form.populate_obj(user)
+        db.session.commit()
+        return redirect(url_for("profile"))
+    return render_template("edit_profile.html", form=form)
+
+
+@app.route("/profile/orders/<int:order_id>/check", methods=["GET"])
+@login_required
+def profile_get_check(order_id):
+    order = models.Order.query.get_or_404(order_id)
+    products_dir = get_products_dictionary_from_check(order.check)
+
+    return render_template(
+        "profile_check.html",
+        check_price=order.check.split("|")[0],
+        products_dir=products_dir,
+    )
 
     return redirect(url_for('admin_products'))
 
@@ -442,3 +613,4 @@ def add_ingredients():
         print(session["unusual_cart"])
         return redirect(url_for('menu'))
     return render_template('add_ingredients.html', form=form)
+

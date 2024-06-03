@@ -18,7 +18,10 @@ class User(UserMixin, db.Model):
     password: so.Mapped[str] = so.mapped_column(sa.String(165))
     pay_method: so.Mapped[str] = so.mapped_column(sa.String(10), default='', nullable=True)
 
-    posts: so.WriteOnlyMapped["Order"] = so.relationship(back_populates="author", passive_deletes=True)
+    posts: so.WriteOnlyMapped["Order"] = so.relationship(
+        back_populates="author", passive_deletes=True
+    )
+
 
     def hash_password(self, password):
         self.password = generate_password_hash(password)  # мб str(password)?
@@ -32,11 +35,11 @@ class Products(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     price: so.Mapped[int] = so.mapped_column()
-    info: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
+    image_url: so.Mapped[str] = so.mapped_column(sa.String(250), nullable=True)
+    info: so.Mapped[str] = so.mapped_column(sa.String(150))
     dop_ingredients: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
     size: so.Mapped[str] = so.mapped_column(sa.String(50))
     mass: so.Mapped[str] = so.mapped_column(sa.String(100))
-    image: so.Mapped[str] = so.mapped_column(sa.String(50), nullable=True)
 
 
 # Модель заказов для бд
@@ -45,7 +48,9 @@ class Order(db.Model):
     time: so.Mapped[str] = so.mapped_column(sa.String(100))
     check: so.Mapped[str] = so.mapped_column(sa.String(100))
     status: so.Mapped[str] = so.mapped_column(sa.String(100))
-    id_person: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
+    id_person: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey(User.id), index=True
+    )
     address: so.Mapped[str] = so.mapped_column(sa.String(100))
     comment: so.Mapped[str] = so.mapped_column(sa.String(200))
 
@@ -59,15 +64,14 @@ class Order(db.Model):
         return ans
 
 
-
 class Ingredient(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     price: so.Mapped[int] = so.mapped_column()
 
 
+
 @login.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
-
 
