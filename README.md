@@ -1,7 +1,7 @@
 # Pizza Delivery Web App
 
 ## Overview
-This project is a collaborative effort by four students from Moscow Aviation Institute. The aim of this project is to develop a pizza delivery web application using Flask, Python, and PostgreSQL. We planned to add to our site not only the basic functions of such applications, but also more complex ones, such as the ability to give the user the administrator role so that he can edit information about goods and view the full order history.
+This project is a collaborative effort by four students from Moscow Aviation Institute. The aim of this project is to develop a pizza delivery web application using Flask, Python, and PostgreSQL. We planned to add to our web-site not only the basic functions of such applications, but also more complex ones, such as the ability to give the user the administrator role so that he can edit information about goods and view the full order history.
 
 ## Features
 - *User Authentication*: Allow users to create accounts, log in, and log out.
