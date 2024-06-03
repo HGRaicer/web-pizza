@@ -16,6 +16,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, ValidationError, Optional
 import sqlalchemy as sa
+from flask_login import current_user
 
 
 from app import db
@@ -129,7 +130,7 @@ class EditForm(FlaskForm):
         user = db.session.scalar(
             sa.select(User).where(User.phone == field.data)
         )
-        if user is not None:
+        if user is not None and user.id != current_user.id:
             raise ValidationError("Please use a different phone number.")
 
     def validate_email(self, field):
@@ -142,7 +143,7 @@ class EditForm(FlaskForm):
         user = db.session.scalar(
             sa.select(User).where(User.email == field.data)
         )
-        if user is not None:
+        if user is not None and user.id != current_user.id:
             raise ValidationError("Please use a different email address.")
             
 

@@ -19,7 +19,7 @@
             {% for product in recommended_products %}
                 <div class="preview" data-target="{{ product.name }}">
                     <i class="fas fa-times">close</i>
-                    <img src="static/pizza2.jpg" alt="">
+                    <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
                     <h3>{{ product.name }}</h3>
                     <p>{{ product.info }}</p>
                     <div class="price">{{ product.price }}</div>
@@ -38,11 +38,11 @@
         </div>
     <br>
         <div class="container-menu">
-            <h3 class="title"> menu </h3>
+            <h3 class="title"> Меню </h3>
             <div class="products-container">
                 {% for product in products %}
                     <div class="product" data-name="{{ product.name }}">
-                        <img src="static/pizza2.jpg" alt="">
+                        <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
                         <h3> {{ product.name }}</h3>
                         <div class="price"> {{ product.price }}</div>
                     </div>
@@ -54,7 +54,7 @@
             {% for product in products %}
                 <div class="preview" data-target="{{ product.name }}">
                     <i class="fas fa-times">close</i>
-                    <img src="static/pizza2.jpg" alt="">
+                    <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
                     <h3>{{ product.name }}</h3>
                     <div class="price">{{ product.price }}</div>
                     <div class="buttons">
