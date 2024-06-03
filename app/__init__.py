@@ -1,14 +1,16 @@
+import os
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-import os
+
 
 app = Flask(__name__)
 # Устанавливаем секретный ключ для приложения, используя переменную окружения или значение по умолчанию
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "you-will-never-guess"
 # Устанавливаем URI для подключения к PostgreSQL
-app.config["SQLALCHEMY_DATABASE_URI"] = (
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or (
     "postgresql://postgres:1234@localhost:5432/web_pizza_db")
 
 # Отключаем отслеживание изменений SQLAlchemy, что улучшает производительность
