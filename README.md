@@ -22,13 +22,13 @@ To ensure the reliability and functionality of the application, we will implemen
   
 ## Setup Instructions
 1. Clone the repository: git clone: https://github.com/HGRaicer/web-pizza.git
-2. Install dependencies: \ pip install -r requirements.txt
+2. Install dependencies: <br /> pip install -r requirements.txt
 4. Install the PostgreSQL from the official website: https://www.postgresql.org/ (During installation, select the host number 5432 and set the password 1234. If you have selected a different password or host, 
 измените свой oc.sec
 change your os.environ["SECRET_KEY"]).
-5. Log into the PostgreSQL console. Press the "enter" bar until you are asked to enter your password. Enter your password, then write a command: \ CREATE DATABASE web-pizza.
+5. Log into the PostgreSQL console. Press the "enter" bar until you are asked to enter your password. Enter your password, then write a command: <br /> CREATE DATABASE web-pizza.
 6. Install the necessary libraries for python.
-7. Go to the repository folder using Visual Studio Code or other programs and write the following commands in the python console: \ flask db init \ flack db migrate \ flask db upgrade
+7. Go to the repository folder using Visual Studio Code or other programs and write the following commands in the python console: <br /> flask db init <br /> flack db migrate <br /> flask db upgrade
 8. Launch run.py and follow the link displayed in the console.
 
 ## Contact
