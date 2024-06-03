@@ -50,7 +50,51 @@ def get_products_dictionary_from_check(check):
                 .all()[0]
                 .name
             )
-            products[product_name] = data[1]
+
+            val = [data[1], "Не добавлялись"]
+            products[product_name] = val
+
+    return products
+
+
+def get_products_ingredients_from_check(check):
+    products = get_products_dictionary_from_check(check)
+
+    if ';' not in check :
+        return products
+
+    parse = check.split("|")[-1]
+
+    del products[parse]
+
+    for c in parse.split(";"):
+        if ":" in c:
+            data = c.split(":")
+            product_name = (
+                models.Products.query.filter(models.Products.id == data[0])
+                .all()[0]
+                .name
+            )
+
+            ingredients = " "
+            if ',' in data[1]:
+                for i in data[1].split(','):
+                    ingredient_name = (
+                        models.Ingredient.query.filter(models.Ingredient.id == i)
+                        .all()[0]
+                        .name
+                    ) 
+                    ingredients += ingredient_name + " "  
+            else:
+                ingredient_name = (
+                        models.Ingredient.query.filter(models.Ingredient.id == data[1])
+                        .all()[0]
+                        .name
+                    ) 
+                ingredients = ingredient_name
+                        
+            val = ["1", ingredients]
+            products[product_name] = val
 
     return products
 
@@ -513,7 +557,7 @@ def update_order_status(order_id, new_status):
 @admin_required
 def order_get_check(order_id):
     order = models.Order.query.get_or_404(order_id)
-    products_dir = get_products_dictionary_from_check(order.check)
+    products_dir = get_products_ingredients_from_check(order.check)
 
     return render_template(
         "order_check.html",
@@ -586,7 +630,7 @@ def edit_profile():
 @login_required
 def profile_get_check(order_id):
     order = models.Order.query.get_or_404(order_id)
-    products_dir = get_products_dictionary_from_check(order.check)
+    products_dir = get_products_ingredients_from_check(order.check)
 
     return render_template(
         "profile_check.html",
