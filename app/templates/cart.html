@@ -23,6 +23,9 @@
                 <input type="submit" value="удалить">
             </form>
         {% endfor %}
+        {% for dop_prod in ans %}
+            <li>{{ dop_prod }}</li>
+        {% endfor %}
         </ul>
         <b>Итого: {{ total_cost }}</b>
         {% set products_string = "" %}

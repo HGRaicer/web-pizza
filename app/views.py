@@ -122,8 +122,30 @@ def cart():
         quantity = cart_items.get(str(product.id), 0)
         products_dict[product.id] = {"product": product, "quantity": quantity}
         total_cost += product.price * quantity
+
+    ans=[]
+    if 'unusual_cart' in session:
+        products_with_ingr = session['unusual_cart'][:-1].split(';')
+        for product in products_with_ingr:
+            print(product)
+            product_id = int(product.split(':')[0])
+
+            ingredients_id = product.split(':')[1].split(',')
+            product = models.Products.query.get(product_id)
+            name = product.name
+            price = product.price
+            strr = f'{name} цена - {price} рублей:'
+            for ingredient_id in ingredients_id:
+                ingredient = models.Ingredient.query.get(ingredient_id)
+                name = ingredient.name
+                price_ing = ingredient.price
+                strr += f' {name} цена - {price_ing} рублей,'
+                price += price_ing
+            ans.append(strr[:-1])
+            total_cost += price
+
     # Возвращаем шаблон корзины с товарами и их количеством
-    return render_template("cart.html", products=products_dict, total_cost=total_cost)
+    return render_template("cart.html", products=products_dict, total_cost=total_cost, ans=ans)
 
 
 # Маршрут для удаления товара из корзины
@@ -416,7 +438,7 @@ def add_ingredients():
     if form.is_submitted():
         if "unusual_cart" not in session:
             session["unusual_cart"] = ''
-        session["unusual_cart"] += f'{product_id}:{','.join(form.ingredients.data)};'
+        session["unusual_cart"] += f'{product_id}:{",".join(form.ingredients.data)};'
         print(session["unusual_cart"])
         return redirect(url_for('menu'))
     return render_template('add_ingredients.html', form=form)
