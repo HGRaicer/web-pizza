@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from functools import wraps
 from urllib.parse import urlsplit
 
@@ -9,8 +9,10 @@ from flask_login import logout_user, current_user, login_user, login_required
 
 from app import app, models
 from app import db
-from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm
+
+from app.forms import RegistrationForm, LoginForm, PayCartForm, ProductForm, ExtraIngredientsForm
 from app.forms import get_time_choices
+
 
 
 
@@ -261,10 +263,11 @@ def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('login'),)
+            return redirect(url_for('login'), )
         if current_user.role != 'admin':
             return redirect(url_for('menu'))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -389,3 +392,31 @@ def profile():
     if current_user.is_authenticated:
         orders = models.Order.query.filter(models.Order.id_person == current_user.id).all()
         return render_template("profile.html", title="Your profile", orders=orders)
+
+
+@app.route("/way_to_product", methods=["POST"])
+def way_to_product():
+    product_id = request.form["product_id"]
+    session['product_id'] = product_id
+    return redirect(url_for('add_ingredients'))
+
+
+@app.route("/add_ingredients", methods=["GET", "POST"])
+def add_ingredients():
+    form = ExtraIngredientsForm()
+    product_id = session.get('product_id')
+    ingredients = models.Products.query.get(product_id).dop_ingredients
+    choices = []
+    for ingredient_id in ingredients.split(';'):
+        ingredient = models.Ingredient.query.get(ingredient_id)
+        name = ingredient.name
+        price = ingredient.price
+        choices.append((ingredient_id, f'{name} цена: {price} рублей'))
+    form.ingredients.choices = choices
+    if form.is_submitted():
+        if "unusual_cart" not in session:
+            session["unusual_cart"] = ''
+        session["unusual_cart"] += f'{product_id}:{','.join(form.ingredients.data)};'
+        print(session["unusual_cart"])
+        return redirect(url_for('menu'))
+    return render_template('add_ingredients.html', form=form)

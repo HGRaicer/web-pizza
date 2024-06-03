@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timedelta
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DecimalField, RadioField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DecimalField, RadioField, SelectMultipleField, TimeField
 from wtforms.validators import DataRequired, ValidationError, Optional
 import sqlalchemy as sa
 
@@ -87,3 +87,8 @@ class ProductForm(FlaskForm):
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
 # image = TextAreaField("Image", validators=[DataRequired()])
+
+
+class ExtraIngredientsForm(FlaskForm):
+    ingredients = SelectMultipleField("ингредиенты")
+    submit = SubmitField("Подтвердить")
