@@ -1,39 +1,71 @@
-# Импортируем необходимые модули и функции
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, TimeField, DecimalField
-from wtforms.validators import DataRequired, ValidationError, Optional
 import re
 from datetime import datetime, timedelta
+
+from flask_wtf import FlaskForm
+from wtforms import (
+    StringField,
+    PasswordField,
+    BooleanField,
+    SubmitField,
+    TextAreaField,
+    DecimalField,
+    SelectMultipleField,
+    RadioField,
+    SelectField,
+)
+from wtforms.validators import DataRequired, ValidationError, Optional
 import sqlalchemy as sa
+from flask_login import current_user
+
+
 from app import db
 from app.models import User
 
-# Базовый класс формы с полями для электронной почты, пароля и кнопки отправки
-class Form(FlaskForm):
+
+def get_time_choices(start_hour=0, start_minute=0, end_hour=23, end_minute=59):
+    now = datetime.now()
+    start = datetime(now.year, now.month, now.day, start_hour, start_minute)
+    end = datetime(now.year, now.month, now.day, end_hour, end_minute)
+    intervals = []
+    while start < end:
+        str_interval = " - ".join(
+            [
+                start.strftime("%H:%M"),
+                (start + timedelta(minutes=30)).strftime("%H:%M"),
+            ]
+        )
+        interval = ((start.strftime("%H:%M")), str_interval)
+        if interval[0] > (now + timedelta(minutes=30)).strftime("%H:%M"):
+            intervals.append(interval)
+        start = start + timedelta(minutes=30)
+    return intervals
+
+
+class RegistrationForm(FlaskForm):
     email = StringField("email", validators=[DataRequired()])
     password = PasswordField("password", validators=[DataRequired()])
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Sign In")
-
-# Класс формы регистрации, наследующийся от базового класса формы
-class RegistrationForm(Form):
     phone = StringField("phone", validators=[DataRequired()])
     name = StringField("name", validators=[DataRequired()])
 
-    # Методы для валидации пароля, телефона и электронной почты
     def validate_password(self, field):
-        # Проверяем, соответствует ли пароль требованиям безопасности
+        # Проверка на все параметры (длина, спец символы и тп)
         if not re.match(
             r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
             field.data,
         ):
-            raise ValidationError("Unvailde password")
+            raise ValidationError("Unvalid password")
 
     def validate_phone(self, field):
-        # Проверяем, соответствует ли номер телефона требованиям
+        # Проверка на все параметры телефона
         if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
             raise ValidationError("Unvailde phone")
-        user = db.session.scalar(sa.select(User).where(User.phone == field.data))
+
+        user = db.session.scalar(
+            sa.select(User).where(User.phone == field.data)
+        )
+
         if user is not None:
             raise ValidationError("Please use a different phone number.")
 
@@ -43,37 +75,92 @@ class RegistrationForm(Form):
             r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
         ):
             raise ValidationError("Unvailde email")
-        # Проверяем, не зарегистрирован ли уже пользователь с таким адресом электронной почты
-        user = db.session.scalar(sa.select(User).where(User.email == field.data))
+        # Проверка на наличие пользователя в бд
+        user = db.session.scalar(
+            sa.select(User).where(User.email == field.data)
+        )
+
         if user is not None:
             raise ValidationError("Please use a different email address.")
 
-# Класс формы входа, наследующийся от базового класса формы
-class LoginForm(Form):
-    pass
+
+class LoginForm(FlaskForm):
+    email = StringField("email", validators=[DataRequired()])
+    password = PasswordField("password", validators=[DataRequired()])
+    remember_me = BooleanField("Remember Me")
+    submit = SubmitField("Sign In")
 
 
 class PayCartForm(FlaskForm):
-    number_card = StringField("Номер карты",validators=[DataRequired()])
-    cvc = StringField("Код",validators=[DataRequired()])
-    date = StringField("Срок",validators=[DataRequired()])
-    address = TextAreaField("Адрес доставки",validators=[DataRequired()])
-    time = TimeField("Время доставки", validators=[DataRequired()])
-    comment = TextAreaField("Комментарий",validators=[Optional()])
+    payment_method = RadioField(
+        "Способ оплаты",
+        choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")],
+    )
+    address = StringField("Адрес доставки", validators=[DataRequired()])
+    entrance = StringField("Подъезд", validators=[Optional()])
+    door_code = StringField("Код двери", validators=[Optional()])
+    floor = StringField("Этаж", validators=[Optional()])
+    apartment = StringField("Квартира", validators=[Optional()])
+    time = SelectField("Время доставки", choices=get_time_choices())
+    comment = TextAreaField("Комментарий", validators=[Optional()])
     submit = SubmitField("Подтвердить")
-
-    def validate_time(self, field):
-        # Проверяем, соответствует ли время доставки требованиям
-        cut_time = datetime.now()
-        minimum_delivery_time = cut_time + timedelta(minutes=30)
-        if field.data < minimum_delivery_time.time():
-            raise ValidationError("Время доставки должно быть не ранее чем через полчаса.")
 
 
 class ProductForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    price = DecimalField('Price', validators=[DataRequired()])
-    ingridients = TextAreaField("Ingridients", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    price = DecimalField("Price", validators=[DataRequired()])
+    info = TextAreaField("Info", validators=[DataRequired()])
+    dop_ingredients = TextAreaField(
+        "DopIngridients", validators=[DataRequired()]
+    )
     size = StringField("Size", validators=[DataRequired()])
     mass = StringField("Mass", validators=[DataRequired()])
+    image_url = TextAreaField("Image", validators=[DataRequired()])
 
+
+class EditForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    phone = StringField("Телефон", validators=[DataRequired()])
+    name = StringField("Имя", validators=[DataRequired()])
+
+    def validate_password(self, field):
+        # Проверка на все параметры (длина, спец символы и тп)
+        if not re.match(
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$",
+            field.data,
+        ):
+            raise ValidationError("Unvalid password")
+
+    def validate_phone(self, field):
+        # Проверка на все параметры телефона
+        if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
+            raise ValidationError("Unvailde phone")
+        user = db.session.scalar(
+            sa.select(User).where(User.phone == field.data)
+        )
+        if user is not None and user.id != current_user.id:
+            raise ValidationError("Please use a different phone number.")
+
+    def validate_email(self, field):
+        # Проверяем, соответствует ли адрес электронной почты требованиям
+        if not re.match(
+            r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", field.data
+        ):
+            raise ValidationError("Unvalid email")
+        # Проверка на наличие пользователя в бд
+        user = db.session.scalar(
+            sa.select(User).where(User.email == field.data)
+        )
+        if user is not None and user.id != current_user.id:
+            raise ValidationError("Please use a different email address.")
+
+
+class ExtraIngredientsForm(FlaskForm):
+    ingredients = SelectMultipleField("ингредиенты")
+    submit = SubmitField("Подтвердить")
+
+
+class IngredientForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    price = DecimalField("Price", validators=[DataRequired()])

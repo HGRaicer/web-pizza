@@ -1,0 +1,62 @@
+body {
+    direction: ltr;
+    line-height: 1.4;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Arial,
+    sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+    font-weight: 400;
+    background: rgb(255, 255, 255);
+    -webkit-font-smoothing: antialiased;
+    font-variant-ligatures: no-common-ligatures;
+}
+
+.checkout-form{
+    position: relative;
+    width: 100%;
+    margin: 0px auto;
+}
+
+.address {
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.address_map {
+    width: 100%;
+    height: 100%;
+    margin-top: 20px;
+}
+.address_text{
+    justify-items: center;
+    justify-content: center;
+    display: grid;
+}
+.address_text_inp{
+    outline: none;
+    border-radius: 8px;
+    border : 1px solid darkgrey;
+    background-color: whitesmoke;
+
+}
+.address_text_lab_inp{
+
+}
+
+.address_text_dopinfo{
+    display: flex;
+    justify-content: space-between;
+}
+.address_text_col{
+    display: grid;
+    flex-direction: column;
+    justify-items: center;
+    justify-content: center;
+    margin-top: 7px;
+}
+.address_text_label {
+    font-weight: bold;
+    justify-self: center;
+}

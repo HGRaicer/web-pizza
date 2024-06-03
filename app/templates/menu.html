@@ -1,17 +1,55 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <h1>Menu</h1>
-    <hr>
-    {% for product in products %}
-    <div>
-        <h2>{{ product.name }}</h2>
-        <p>Ингридиенты: {{ product.ingridients }}</p>
-        <p>Цена: {{ product.price }} руб.</p>
-        <form action="/add_to_cart" method="post">
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <input type="submit" value="Добавить в корзину">
-        </form>
-    </div>
-    {% endfor %}
+        <link rel="stylesheet" href="static/menu.css" type="text/css" />
+        <script src="static/menu.js" defer></script>
+        <div class="container-menu">
+            <h3 class="title"> Рекомендации </h3>
+            <div class="products-container">
+                {% for product in recommended_products %}
+                    <div class="product" data-name="{{ product.name }}">
+                        <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
+                        <h3> {{ product.name }}</h3>
+                        <div class="price"> {{ product.price }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+    <br>
+        <div class="container-menu">
+            <h3 class="title"> Меню </h3>
+            <div class="products-container">
+                {% for product in products %}
+                    <div class="product" data-name="{{ product.name }}">
+                        <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
+                        <h3> {{ product.name }}</h3>
+                        <div class="price"> {{ product.price }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="products-preview">
+            {% for product in products %}
+                <div class="preview" data-target="{{ product.name }}">
+                    <i class="fas fa-times">close</i>
+                    <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="">
+                    <h3>{{ product.name }}</h3>
+                    {{ product.info }}
+                    <div class="price">{{ product.price }}</div>
+                    <div class="buttons">
+                        <form action="/add_to_cart" method="post">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <button class="cart">Добавить в корзину</button>
+                        </form>
+                        <form action="/way_to_product" method="post">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <button class="cart">Добавить ингредиенты</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
 {% endblock %}
