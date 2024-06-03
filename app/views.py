@@ -60,12 +60,10 @@ def get_products_dictionary_from_check(check):
 def get_products_ingredients_from_check(check):
     products = get_products_dictionary_from_check(check)
 
-    if ';' not in check :
+    if ';' not in check:
         return products
 
     parse = check.split("|")[-1]
-
-    del products[parse]
 
     for c in parse.split(";"):
         if ":" in c:
