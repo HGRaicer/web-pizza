@@ -6,6 +6,7 @@
 
 {% block content %}
     <div style="margin-bottom: 20px;">
+
         <a class="btn btn-primary" style="margin-left: 10%; margin-top: 20px;" href="{{ url_for('add_product') }}">Add Product</a>
     </div>
 
@@ -40,6 +41,7 @@
         </table>
     </div>
 
+
     <script>
         function editProduct(productId) {
         var xhr = new XMLHttpRequest();
@@ -49,7 +51,9 @@
             if (xhr.status === 200) {
                 window.location.href = url;
             } else {
+
                 console.error('Failed to edit product');
+
             }
         };
         xhr.send();

@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="row justify-content-center">
     <table class="table table-sm" style="width: 80%" border="1" id="ordertable">
         <thead class="thead-dark">
@@ -17,25 +18,31 @@
                 <th onclick="sortTable(5)">Phone</th>
             </tr>
         </thead>
+
         {% for user in users %}
         <tr>
             <td>{{ user.id }}</td>
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>
+
                 <select class="form-select form-select-lg ml-3" onchange="changeUserRole(this.value, {{ user.id }})">
+
                     <option value="user" {% if user.role == 'user' %} selected {% endif %}>User</option>
                     <option value="admin" {% if user.role == 'admin' %} selected {% endif %}>Admin</option>
                 </select>
             </td>
             <td>{{ user.phone }}</td>
+
             <td>
                 <a class="btn btn-danger" href="#" onclick="deleteUser({{ user.id }})">Delete</a>
+
             </td>
         </tr>
         {% endfor %}
     </table>
 </div>
+
 
      <script>
         function changeUserRole(newRole, userId) {

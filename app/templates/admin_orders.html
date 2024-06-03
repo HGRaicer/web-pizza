@@ -19,10 +19,12 @@
                 <th onclick="sortTable(7)">Author</th>
             </tr>
         </thead>
+
         {% for order in orders %}
         <tr>
             <td>{{ order.id_order }}</td>
             <td>{{ order.time }}</td>
+
             <td><a class="btn btn-info" href="#" onclick="getOrderCheck({{ order.id_order }})">{{ order.check }}</a></td>
             <td>
                 <select onchange="changeOrderStatus(this.value, {{ order.id_order }})">
@@ -30,6 +32,7 @@
                     <option value="Готовится" {% if order.status == 'Готовится' %} selected {% endif %}>Готовится</option>
                     <option value="Доставляется" {% if order.status == 'Доставляется' %} selected {% endif %}>Доставляется</option>
                     <option value="Доставлено" {% if order.status == 'Доставлено' %} selected {% endif %}>Доставлено</option>
+
                 </select>
             </td>
             <td>{{ order.id_person }}</td>
@@ -38,10 +41,12 @@
             <td>{{ order.author.name }}</td>
             <td>
                 <a class="btn btn-danger" href="#" onclick="deleteOrder({{ order.id_order }})">Delete</a>
+
             </td>
         </tr>
         {% endfor %}
     </table>
+
 </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>

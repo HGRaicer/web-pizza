@@ -1,9 +1,12 @@
+from datetime import datetime
+
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from app import db
 from flask_login import UserMixin
-from app import login
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from app import db
+from app import login
 
 
 class User(UserMixin, db.Model):
@@ -12,12 +15,13 @@ class User(UserMixin, db.Model):
     email: so.Mapped[str] = so.mapped_column(sa.String(100), unique=True)
     role: so.Mapped[str] = so.mapped_column(sa.String(50), default="user")
     phone: so.Mapped[str] = so.mapped_column(sa.String(15), unique=True)
-    password: so.Mapped[str] = so.mapped_column(sa.String(300))
-    last5_order: so.Mapped[str] = so.mapped_column(sa.String(100))
+    password: so.Mapped[str] = so.mapped_column(sa.String(165))
+    pay_method: so.Mapped[str] = so.mapped_column(sa.String(10), default='', nullable=True)
 
     posts: so.WriteOnlyMapped["Order"] = so.relationship(
         back_populates="author", passive_deletes=True
     )
+
 
     def hash_password(self, password):
         self.password = generate_password_hash(password)  # мб str(password)?
@@ -31,11 +35,12 @@ class Products(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     price: so.Mapped[int] = so.mapped_column()
-    ingridients: so.Mapped[str] = so.mapped_column(sa.String(150))
+    image_url: so.Mapped[str] = so.mapped_column(sa.String(250), nullable=True)
+    info: so.Mapped[str] = so.mapped_column(sa.String(150))
+    dop_ingredients: so.Mapped[str] = so.mapped_column(sa.String(150), nullable=True)
     size: so.Mapped[str] = so.mapped_column(sa.String(50))
     mass: so.Mapped[str] = so.mapped_column(sa.String(100))
-    image_url: so.Mapped[str] = so.mapped_column(sa.String(250), nullable=True)
-
+    
 
 # Модель заказов для бд
 class Order(db.Model):
@@ -51,7 +56,22 @@ class Order(db.Model):
 
     author: so.Mapped[User] = so.relationship(back_populates="posts")
 
+    @staticmethod
+    def count_time(time):
+        now = datetime.now()
+        time = " ".join([now.strftime("%Y-%m-%d"), time])
+        ans = db.session.query(Order).filter(Order.time == time).count()
+        return ans
+
+
+class Ingredient(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(100))
+    price: so.Mapped[int] = so.mapped_column()
+
+
 
 @login.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+

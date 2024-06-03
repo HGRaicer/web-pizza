@@ -1,4 +1,8 @@
-from app import app, models
+from datetime import datetime, date
+from functools import wraps
+from urllib.parse import urlsplit
+
+
 from flask import (
     request,
     render_template,
@@ -9,6 +13,9 @@ from flask import (
     jsonify,
 )
 import sqlalchemy as sa
+from flask_login import logout_user, current_user, login_user, login_required
+
+from app import app, models
 from app import db
 from app.forms import (
     RegistrationForm,
@@ -16,11 +23,10 @@ from app.forms import (
     PayCartForm,
     ProductForm,
     EditForm,
+    ExtraIngredientsForm,
+    get_time_choices,
 )
-from flask_login import logout_user, current_user, login_user, login_required
-from datetime import datetime, date
-from functools import wraps
-from urllib.parse import urlsplit
+
 
 
 def get_products_from_check(check):
@@ -85,6 +91,7 @@ def get_recommended_products(user_id, default_product_ids):
     return recommended_products
 
 
+
 @app.route("/registration", methods=["GET", "POST"])
 def registration():
     if current_user.is_authenticated:
@@ -97,7 +104,6 @@ def registration():
         user.email = form.email.data
         user.name = form.name.data
         user.hash_password(form.password.data)
-        user.last5_order = ""
         db.session.add(user)
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
@@ -128,6 +134,7 @@ def login():
         next_page = request.args.get("next")
         if not next_page or urlsplit(next_page).netloc != "":
             next_page = url_for("menu")
+
         return redirect(next_page)
     # Возвращаем шаблон страницы входа с формой
     return render_template("login.html", title="Sign In", form=form)
@@ -166,6 +173,7 @@ def menu():
         products=products,
         recommended_products=recommended_products,
     )
+
 
 
 # Маршрут для добавления товара в корзину
@@ -210,9 +218,11 @@ def cart():
         products_dict[product.id] = {"product": product, "quantity": quantity}
         total_cost += product.price * quantity
     # Возвращаем шаблон корзины с товарами и их количеством
+
     return render_template(
         "cart.html", products=products_dict, total_cost=total_cost
     )
+
 
 
 # Маршрут для удаления товара из корзины
@@ -265,33 +275,44 @@ def increase_quantity_cart():
 def pay_cart():
     if current_user.is_authenticated:
         form = PayCartForm()
+        user = models.User.query.get(current_user.id)
+        form.payment_method.default = user.pay_method
+        intervals = get_time_choices()
+        form.time.choices = intervals
         if form.validate_on_submit():
             # Получаем словарь идентификаторов товаров и их количеств в корзине
             cart_items = session.get("cart", {})
-            products = ""
+            products = ''
             total_cost = 0
             # формируем строчку для чека вида id продукта:количество| и подсчитываем общую сумму
             for id_product, quantity in cart_items.items():
-                products = products + f"{id_product}:{quantity}|"
-                total_cost += (
-                    models.Products.query.get(id_product).price * quantity
-                )
+                products = products + f'{id_product}:{quantity}|'
+                total_cost += models.Products.query.get(id_product).price * quantity
             # формируем чек
             check = f"{total_cost}|" + products
             # Получение текущего времени заказа
-            time = form.time.data
-            today = date.today()
-            date_with_time = datetime.combine(today, time)
-            formatted_date = date_with_time.strftime("%d/%m/%Y %H:%M")
+            now = datetime.now()
+            time = " ".join([now.strftime("%Y-%m-%d"), form.time.data])
+
+            list_address = [form.address.data]
+            if form.entrance.data:
+                list_address.append('под.' + form.entrance.data)
+            if form.door_code.data:
+                list_address.append('д.' + form.door_code.data)
+            if form.floor.data:
+                list_address.append('эт.' + form.floor.data)
+            if form.apartment.data:
+                list_address.append('кв.' + form.apartment.data)
+            address = ','.join(list_address)
 
             # Сохраняем информацию о заказе
             order = models.Order(
                 id_person=current_user.id,
-                address=form.address.data,
+                address=address,
                 status="Принято",
                 comment=form.comment.data,
                 check=check,
-                time=formatted_date,
+                time=time
             )
             # Очищаем корзину
             session["cart"].clear()
@@ -299,9 +320,20 @@ def pay_cart():
             db.session.commit()
             session["order"] = order.id_order
             return redirect(url_for("order_tracking"))
-        return render_template("pay_cart.html", title="Pay_cart", form=form)
+        return render_template("pay_cart.html", form=form, title="Pay_cart", user=user)
     else:
         return redirect(url_for("login"))
+
+@app.route('/get_delivery_times', methods=['POST'])
+def get_delivery_times():
+    time = request.form['time']
+    count_order = models.Order.count_time(time)
+    if count_order < 10:
+        return jsonify({'delivery_time': 'Низкая нагруженность'})
+    if count_order < 50:
+        return jsonify({'delivery_time': 'Средняя нагруженность'})
+    return jsonify({'delivery_time': 'Высокая нагруженность'})
+
 
 
 @app.route("/order_tracking", methods=["GET"])
@@ -332,9 +364,11 @@ def admin_required(func):
             )
         if current_user.role != "admin":
             return redirect(url_for("menu"))
+
         return func(*args, **kwargs)
 
     return decorated_view
+
 
 
 @app.route("/admin")
@@ -349,6 +383,7 @@ def admin():
 @admin_required
 def admin_users():
     users = models.User.query.all()
+
     return render_template("admin_users.html", users=users)
 
 
@@ -370,6 +405,7 @@ def change_user_role(user_id, new_role):
 @admin_required
 def admin_products():
     products = models.Products.query.all()
+
     return render_template("admin_products.html", products=products)
 
 
@@ -378,6 +414,7 @@ def admin_products():
 @admin_required
 def admin_orders():
     orders = models.Order.query.all()
+
     return render_template("admin_orders.html", orders=orders)
 
 
@@ -387,6 +424,7 @@ def admin_orders():
 def add_product():
     form = ProductForm()
     if form.validate_on_submit():
+
         new_product = models.Products(
             name=form.name.data,
             price=form.price.data,
@@ -411,6 +449,7 @@ def edit_product(product_id):
     if form.validate_on_submit():
         form.populate_obj(product)
         db.session.commit()
+
         return redirect(url_for("admin_products"))
     return render_template(
         "edit_product.html", form=form, product_id=product_id
@@ -426,6 +465,7 @@ def update_order_status(order_id, new_status):
     order = models.Order.query.get_or_404(order_id)
     order.status = new_status
     db.session.commit()
+
 
     return redirect(url_for("admin_orders"))
 
@@ -474,6 +514,7 @@ def delete_product(product_id):
     db.session.delete(product)
     db.session.commit()
 
+
     return redirect(url_for("admin_products"))
 
 
@@ -513,3 +554,42 @@ def profile_get_check(order_id):
         check_price=order.check.split("|")[0],
         products_dir=products_dir,
     )
+
+    return redirect(url_for('admin_products'))
+
+
+@login_required
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    if current_user.is_authenticated:
+        orders = models.Order.query.filter(models.Order.id_person == current_user.id).all()
+        return render_template("profile.html", title="Your profile", orders=orders)
+
+
+@app.route("/way_to_product", methods=["POST"])
+def way_to_product():
+    product_id = request.form["product_id"]
+    session['product_id'] = product_id
+    return redirect(url_for('add_ingredients'))
+
+
+@app.route("/add_ingredients", methods=["GET", "POST"])
+def add_ingredients():
+    form = ExtraIngredientsForm()
+    product_id = session.get('product_id')
+    ingredients = models.Products.query.get(product_id).dop_ingredients
+    choices = []
+    for ingredient_id in ingredients.split(';'):
+        ingredient = models.Ingredient.query.get(ingredient_id)
+        name = ingredient.name
+        price = ingredient.price
+        choices.append((ingredient_id, f'{name} цена: {price} рублей'))
+    form.ingredients.choices = choices
+    if form.is_submitted():
+        if "unusual_cart" not in session:
+            session["unusual_cart"] = ''
+        session["unusual_cart"] += f'{product_id}:{','.join(form.ingredients.data)};'
+        print(session["unusual_cart"])
+        return redirect(url_for('menu'))
+    return render_template('add_ingredients.html', form=form)
+

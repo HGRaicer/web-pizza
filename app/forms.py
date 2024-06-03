@@ -1,3 +1,6 @@
+import re
+from datetime import datetime, timedelta
+
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
@@ -7,13 +10,31 @@ from wtforms import (
     TextAreaField,
     TimeField,
     DecimalField,
+    SelectMultipleField,
+    RadioField,
+    SelectField,
 )
 from wtforms.validators import DataRequired, ValidationError, Optional
-import re
-from datetime import datetime, timedelta
 import sqlalchemy as sa
+
+
 from app import db
 from app.models import User
+
+
+def get_time_choices(start_hour=0, start_minute=0, end_hour=23, end_minute=59):
+    now = datetime.now()
+    start = datetime(now.year, now.month, now.day, start_hour, start_minute)
+    end = datetime(now.year, now.month, now.day, end_hour, end_minute)
+    intervals = []
+    while start < end:
+        str_interval = " - ".join([start.strftime("%H:%M"), (start + timedelta(minutes=30)).strftime("%H:%M")])
+        interval = ((start.strftime('%H:%M')),
+                    str_interval)
+        if interval[0] > (now + timedelta(minutes=30)).strftime('%H:%M'):
+            intervals.append(interval)
+        start = start + timedelta(minutes=30)
+    return intervals
 
 
 class RegistrationForm(FlaskForm):
@@ -36,9 +57,11 @@ class RegistrationForm(FlaskForm):
         # Проверка на все параметры телефона
         if not re.match(r"^\+?[1-9][0-9]\d{9,14}$", field.data):
             raise ValidationError("Unvailde phone")
+
         user = db.session.scalar(
             sa.select(User).where(User.phone == field.data)
         )
+
         if user is not None:
             raise ValidationError("Please use a different phone number.")
 
@@ -52,6 +75,7 @@ class RegistrationForm(FlaskForm):
         user = db.session.scalar(
             sa.select(User).where(User.email == field.data)
         )
+
         if user is not None:
             raise ValidationError("Please use a different email address.")
 
@@ -64,24 +88,17 @@ class LoginForm(FlaskForm):
 
 
 class PayCartForm(FlaskForm):
-    number_card = StringField("Номер карты", validators=[DataRequired()])
-    cvc = StringField("Код", validators=[DataRequired()])
-    date = StringField("Срок", validators=[DataRequired()])
-    address = TextAreaField("Адрес доставки", validators=[DataRequired()])
-    time = TimeField("Время доставки", validators=[DataRequired()])
+    payment_method = RadioField("Способ оплаты", choices=[("card", "Картой курьеру"), ("cash", "Наличными курьеру")])
+    address = StringField("Адрес доставки", validators=[DataRequired()])
+    entrance = StringField("Подъезд", validators=[Optional()])
+    door_code = StringField("Код двери", validators=[Optional()])
+    floor = StringField("Этаж", validators=[Optional()])
+    apartment = StringField("Квартира", validators=[Optional()])
+    time = SelectField("Время доставки", choices=get_time_choices())
     comment = TextAreaField("Комментарий", validators=[Optional()])
     submit = SubmitField("Подтвердить")
 
-    def validate_time(self, field):
-        # Проверяем, соответствует ли время доставки требованиям
-        cut_time = datetime.now()
-        minimum_delivery_time = cut_time + timedelta(minutes=30)
-        if field.data < minimum_delivery_time.time():
-            raise ValidationError(
-                "Время доставки должно быть не ранее чем через полчаса."
-            )
-
-
+    
 class ProductForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     price = DecimalField("Price", validators=[DataRequired()])
@@ -127,3 +144,9 @@ class EditForm(FlaskForm):
         )
         if user is not None:
             raise ValidationError("Please use a different email address.")
+            
+
+class ExtraIngredientsForm(FlaskForm):
+    ingredients = SelectMultipleField("ингредиенты")
+    submit = SubmitField("Подтвердить")
+
