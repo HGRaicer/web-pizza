@@ -25,8 +25,8 @@ from app.forms import (
     EditForm,
     ExtraIngredientsForm,
     get_time_choices,
+    IngredientForm,
 )
-
 
 
 def get_products_from_check(check):
@@ -224,7 +224,6 @@ def cart():
     if 'unusual_cart' in session:
         products_with_ingr = session['unusual_cart'][:-1].split(';')
         for product in products_with_ingr:
-            print(product)
             product_id = int(product.split(':')[0])
 
             ingredients_id = product.split(':')[1].split(',')
@@ -313,10 +312,8 @@ def pay_cart():
                 total_cost += models.Products.query.get(id_product).price * quantity
             # формируем чек
             dop_ingredients = session.get("unusual_cart", '')
-            print(dop_ingredients)
             if dop_ingredients != '':
                 for dop_prods in dop_ingredients[:-1].split(';'):
-                    print(dop_prods)
                     prod_id, ings_id = dop_prods.split(':')[0], dop_prods.split(':')[1]
                     if ',' in ings_id:
                         for ing_id in ings_id.split(','):
@@ -621,7 +618,58 @@ def add_ingredients():
         if "unusual_cart" not in session:
             session["unusual_cart"] = ''
         session["unusual_cart"] += f'{product_id}:{",".join(form.ingredients.data)};'
-        print(session["unusual_cart"])
         return redirect(url_for('menu'))
     return render_template('add_ingredients.html', form=form)
 
+
+@app.route("/admin/ingredients")
+@login_required
+@admin_required
+def admin_ingredients():
+    ingredients = models.Ingredient.query.all()
+
+    return render_template("admin_ingredients.html", ingredients=ingredients)
+
+
+@app.route("/admin/ingredients/add", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_add_ingredient():
+    form = IngredientForm()
+    if form.validate_on_submit():
+        new_ingredient = models.Ingredient(
+            name=form.name.data,
+            price=form.price.data
+        )
+
+        db.session.add(new_ingredient)
+        db.session.commit()
+        return redirect(url_for("admin_ingredients"))
+    return render_template("admin_add_ingredients.html", form=form)
+
+
+@app.route("/admin/ingredients/edit/<int:ingredient_id>", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_edit_ingredient(ingredient_id):
+    ingredient = models.Ingredient.query.get_or_404(ingredient_id)
+    form = IngredientForm(obj=ingredient)
+    if form.validate_on_submit():
+        form.populate_obj(ingredient)
+        db.session.commit()
+
+        return redirect(url_for("admin_ingredients"))
+    return render_template(
+        "admin_edit_ingredient.html", form=form, ingredient_id=ingredient_id
+    )
+
+
+@app.route("/admin/ingredients/delete/<int:ingredient_id>", methods=["GET", "POST"])
+@login_required
+@admin_required
+def delete_ingredient(ingredient_id):
+    ingredient = models.Ingredient.query.get_or_404(ingredient_id)
+    db.session.delete(ingredient)
+    db.session.commit()
+
+    return redirect(url_for("admin_ingredients"))

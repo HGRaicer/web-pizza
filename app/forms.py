@@ -152,3 +152,7 @@ class ExtraIngredientsForm(FlaskForm):
     ingredients = SelectMultipleField("ингредиенты")
     submit = SubmitField("Подтвердить")
 
+
+class IngredientForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    price = DecimalField("Price", validators=[DataRequired()])

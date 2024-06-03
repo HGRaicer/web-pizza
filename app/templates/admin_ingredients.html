@@ -1,0 +1,68 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    Admin Ingredient
+{% endblock %}
+
+{% block content %}
+    <div style="margin-bottom: 20px;">
+
+        <a class="btn btn-primary" style="margin-left: 10%; margin-top: 20px;" href="{{ url_for('admin_add_ingredient') }}">Add Ingredient</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <table class="table table-sm" style="width: 80%" border="1" id="ordertable">
+            <thead class="thead-dark">
+                <tr>
+                    <th onclick="sortTable(0)">ID</th>
+                    <th onclick="sortTable(1)">Name</th>
+                    <th onclick="sortTable(2)">Price</th>
+                </tr>
+            </thead>
+            {% for ingredient in ingredients %}
+            <tr>
+                <td>{{ ingredient.id }}</td>
+                <td>{{ ingredient.name }}</td>
+                <td>{{ ingredient.price }}</td>
+                <td style="width: 20%;">
+                    <a class="btn btn-warning" href="#" onclick="editIngredient({{ ingredient.id }})">Edit</a>
+                    <a class="btn btn-danger" href="#" onclick="deleteIngredient({{ ingredient.id }})">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+    <script>
+        function editIngredient(ingredientId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/ingredients/edit/' + ingredientId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = url;
+            } else {
+
+                console.error('Failed to edit ingredient');
+
+            }
+        };
+        xhr.send();
+    }
+
+        function deleteIngredient(ingredientId) {
+        var xhr = new XMLHttpRequest();
+        var url = '/admin/ingredients/delete/' + ingredientId;
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = '/admin/ingredients';
+            } else {
+                console.error('Failed to delete ingredient');
+            }
+        };
+        xhr.send();
+    }
+    </script>
+{% endblock %}

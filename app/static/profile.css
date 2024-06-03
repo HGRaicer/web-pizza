@@ -1,0 +1,47 @@
+.container-prof {
+    display: flex;
+}
+
+.column {
+    flex: 1;
+    padding: 20px;
+}
+
+.accepted {
+    display: inline-block;
+    background-color: #FF6666;
+    padding: 10px; /* добавляем отступы */
+    border-radius: 10px;
+}
+
+.cooking {
+    display: inline-block;
+    background-color: #FFFFE0;
+    padding: 10px; 
+    border-radius: 10px;
+}
+
+.delivering {
+    display: inline-block;
+    background-color: #98FB98;
+    padding: 10px; 
+    border-radius: 10px;
+}
+
+.delivered {
+    display: inline-block;
+    background-color: #008000;
+    padding: 10px; 
+    border-radius: 10px;
+}
+
+.check {
+  cursor: pointer;
+  padding: 5px 10px;
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 5px;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
